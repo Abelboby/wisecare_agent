@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 
 import 'package:wisecare_agent/gen/assets.gen.dart';
 import 'package:wisecare_agent/navigation/redirection_service.dart';
+import 'package:wisecare_agent/provider/profile_provider.dart';
 import 'package:wisecare_agent/provider/splash_provider.dart';
+import 'package:wisecare_agent/services/auth_storage_service.dart';
 import 'package:wisecare_agent/ui/splash/widgets/splash_progress_fill.dart';
 import 'package:wisecare_agent/utils/theme/colors/app_color.dart';
 import 'package:wisecare_agent/utils/theme/theme_manager.dart';
@@ -25,6 +27,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late final AnimationController _progressController;
   bool _hasRedirected = false;
+  bool _redirectStarted = false;
 
   void _refresh() => mounted ? setState(() {}) : null;
 
