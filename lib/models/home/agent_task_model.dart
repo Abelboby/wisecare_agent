@@ -59,13 +59,89 @@ class AgentTaskModel {
     );
   }
 
+  /// Maps backend service-request object to [AgentTaskModel].
+  /// See service-requests-api-integration.md for API shape.
+  /// Optional fields (distanceAway, scheduledAt, itemCount, mapImageUrl, productImageUrl)
+  /// are read when present; see docs/tasks-api-gaps.md.
+  factory AgentTaskModel.fromServiceRequest(Map<String, dynamic> json) {
+    final category = json['category'] as String?;
+    final priorityStr = json['priority'] as String? ?? 'NORMAL';
+    final statusStr = json['status'] as String? ?? '';
+    final title = json['title'] as String? ?? json['description'] as String? ?? '';
+    final location = json['elderlyAddress'] as String? ?? json['elderlyCity'] as String?;
+    final assignedAt = json['assignedAt'] as String?;
+    final subtitle = _subtitleFromCategoryAndStatus(category, statusStr);
+    final scheduledAtRaw = json['scheduledAt'] as String?;
+    return AgentTaskModel(
+      id: json['requestId'] as String? ?? '',
+      priority: _priorityFromApi(priorityStr, category),
+      title: title.isNotEmpty ? title : (json['rawMessage'] as String? ?? 'Task'),
+      subtitle: subtitle,
+      location: location,
+      distanceAway: json['distanceAway'] as String?,
+      type: _taskTypeFromString(category),
+      scheduledAt: _formatAssignedAt(scheduledAtRaw ?? assignedAt),
+      itemCount: json['itemCount'] as int?,
+      mapImageUrl: json['mapImageUrl'] as String?,
+      productImageUrl: json['productImageUrl'] as String?,
+    );
+  }
+
+  static String _subtitleFromCategoryAndStatus(String? category, String status) {
+    final statusLabel = _statusLabel(status);
+    if (category != null && category.isNotEmpty) {
+      return '$category • $statusLabel';
+    }
+    return statusLabel;
+  }
+
+  static String _statusLabel(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'Waiting for agent';
+      case 'ASSIGNED':
+        return 'Assigned to you';
+      case 'ACCEPTED':
+        return 'Accepted';
+      case 'IN_PROGRESS':
+        return 'In progress';
+      case 'COMPLETED':
+        return 'Completed';
+      case 'REJECTED':
+        return 'Rejected';
+      default:
+        return status;
+    }
+  }
+
+  static AgentTaskPriority _priorityFromApi(String priority, String? category) {
+    if (category != null && category.toUpperCase() == 'SOS') {
+      return AgentTaskPriority.high;
+    }
+    return priority.toUpperCase() == 'HIGH'
+        ? AgentTaskPriority.high
+        : AgentTaskPriority.medium;
+  }
+
+  static String? _formatAssignedAt(String? iso) {
+    if (iso == null || iso.isEmpty) return null;
+    try {
+      final dt = DateTime.parse(iso);
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:${dt.minute.toString().padLeft(2, '0')} $ampm';
+    } catch (_) {
+      return null;
+    }
+  }
+
   static AgentTaskType _taskTypeFromString(String? value) {
     if (value == null) return AgentTaskType.other;
     final lower = value.toLowerCase();
     if (lower.contains('sos') || lower.contains('emergency')) {
       return AgentTaskType.sos;
     }
-    if (lower.contains('medicine') || lower.contains('delivery')) {
+    if (lower.contains('medicine') || lower.contains('grocery')) {
       return AgentTaskType.medicineDelivery;
     }
     return AgentTaskType.other;
