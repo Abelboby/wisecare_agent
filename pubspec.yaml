@@ -26,6 +26,9 @@ dependencies:
   # SVG rendering (used by widgets/common/svg_image.dart + flutter_gen)
   flutter_svg: ^2.0.10+1
 
+  # Web: device frame preview (iPhone 15 Pro)
+  device_frame: ^1.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
