@@ -206,6 +206,7 @@ class UpdateProfileRequest {
   final String? gender;
   final String? bloodGroup;
 
+  /// Only allowed fields for PUT /users/me per backend API.
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (name != null) data['name'] = name;
@@ -213,10 +214,6 @@ class UpdateProfileRequest {
     if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth;
     if (city != null) data['city'] = city;
     if (cityImageUrl != null) data['cityImageUrl'] = cityImageUrl;
-    if (phone != null) data['phone'] = phone;
-    if (address != null) data['address'] = address;
-    if (gender != null) data['gender'] = gender;
-    if (bloodGroup != null) data['bloodGroup'] = bloodGroup;
     return data;
   }
 }
