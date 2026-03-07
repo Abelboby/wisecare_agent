@@ -32,6 +32,9 @@ dependencies:
   # Typography (Poppins, Lexend)
   google_fonts: ^6.2.1
 
+  # File picker (profile photo upload)
+  file_picker: ^8.0.0+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
