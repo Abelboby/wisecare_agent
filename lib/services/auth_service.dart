@@ -33,7 +33,7 @@ class AuthService {
       }
       await AuthStorageService.saveAuthTokens(
         model.accessToken,
-        model.refreshToken,
+        model.refreshToken ?? '',
       );
       return model;
     } on DioException catch (e) {
