@@ -11,8 +11,10 @@ class SplashService {
     try {
       onProgress?.call(0.0);
       await Hive.initFlutter();
-      onProgress?.call(0.5);
+      onProgress?.call(0.33);
       await Hive.openBox<dynamic>(StorageKeys.settingsBox);
+      onProgress?.call(0.66);
+      await Hive.openBox<dynamic>(StorageKeys.userBox);
       onProgress?.call(1.0);
     } catch (_) {
       onProgress?.call(1.0);
