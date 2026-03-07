@@ -1,4 +1,10 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wisecare_agent/utils/file_reader_stub.dart'
+    if (dart.library.io) 'package:wisecare_agent/utils/file_reader_io.dart'
+    as file_reader;
 
 import 'package:wisecare_agent/models/profile/profile_model.dart';
 import 'package:wisecare_agent/navigation/app_navigator.dart';
@@ -18,6 +24,9 @@ class ProfileProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isUploadingPhoto = false;
+  bool get isUploadingPhoto => _isUploadingPhoto;
+
   bool _isProfileLoading = false;
   bool get isProfileLoading => _isProfileLoading;
 
@@ -27,8 +36,9 @@ class ProfileProvider extends ChangeNotifier {
   bool _profileLoaded = false;
 
   /// Loads the user profile from GET /users/me. Safe to call multiple times;
-  /// subsequent calls after the first successful load are no-ops.
-  Future<void> loadProfile() async {
+  /// subsequent calls after the first successful load are no-ops unless [forceRefresh] is true.
+  Future<void> loadProfile({bool forceRefresh = false}) async {
+    if (forceRefresh) _profileLoaded = false;
     if (_profileLoaded || _isProfileLoading) return;
     _isProfileLoading = true;
     _errorMessage = null;
@@ -44,6 +54,68 @@ class ProfileProvider extends ChangeNotifier {
     } finally {
       _isProfileLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Picks an image, uploads via POST /uploads, then updates profile with the URL.
+  Future<void> uploadProfilePhoto() async {
+    if (_isLoading) return;
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final file = result.files.single;
+      List<int>? bytes = file.bytes;
+      if (bytes == null && file.path != null) {
+        bytes = await file_reader.readFileBytes(file.path!);
+      }
+      if (bytes == null || bytes.isEmpty) {
+        _errorMessage = 'Could not read file.';
+        notifyListeners();
+        return;
+      }
+      final base64Data = base64Encode(bytes);
+      final fileName = file.name.isNotEmpty ? file.name : 'profile-photo.jpg';
+      final fileType = _mimeFromExtension(fileName);
+      _isLoading = true;
+      _isUploadingPhoto = true;
+      _errorMessage = null;
+      notifyListeners();
+      final url = await _profileRepository.uploadFile(
+        base64Data: base64Data,
+        fileType: fileType,
+        fileName: fileName,
+        folder: 'profile-photos',
+      );
+      _profile = await _profileRepository.updateProfile(
+        UpdateProfileRequest(profilePhotoUrl: url),
+      );
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e is Exception
+          ? e.toString().replaceFirst('Exception: ', '')
+          : e.toString();
+    } finally {
+      _isLoading = false;
+      _isUploadingPhoto = false;
+      notifyListeners();
+    }
+  }
+
+  static String _mimeFromExtension(String fileName) {
+    final ext = fileName.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      default:
+        return 'image/jpeg';
     }
   }
 
