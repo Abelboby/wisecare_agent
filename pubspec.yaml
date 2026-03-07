@@ -35,6 +35,14 @@ dependencies:
   # File picker (profile photo upload)
   file_picker: ^8.0.0+1
 
+  # Maps (agent map tab; no API key – uses OSM tiles)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+  # Location (map "my location" and agent position)
+  geolocator: ^13.0.2
+  permission_handler: ^11.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
