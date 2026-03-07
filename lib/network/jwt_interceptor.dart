@@ -10,7 +10,8 @@ import 'package:wisecare_agent/services/auth_storage_service.dart';
 /// Reads access token from Hive. Called synchronously inside onRequest.
 String? getStoredAuthToken() => AuthStorageService.getStoredAuthToken();
 
-/// Key used in [RequestOptions.extra] to skip auth injection and 401-retry.
+/// Key used in [RequestOptions.extra] to skip auth injection and 401-retry
+/// for internal calls (e.g. the refresh request itself).
 const _kSkipAuth = 'skipAuth';
 
 /// Dio interceptor that:
@@ -28,6 +29,8 @@ class JwtInterceptor extends Interceptor {
   static const String _tag = 'JwtInterceptor';
 
   bool _shouldSkip(RequestOptions options) => options.extra[_kSkipAuth] == true || options.path.startsWith('/auth/');
+
+  // ── Request ───────────────────────────────────────────────────────────────
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -48,6 +51,8 @@ class JwtInterceptor extends Interceptor {
     handler.next(options);
   }
 
+  // ── Response ──────────────────────────────────────────────────────────────
+
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     dev.log(
@@ -58,6 +63,8 @@ class JwtInterceptor extends Interceptor {
     );
     handler.next(response);
   }
+
+  // ── Error / 401 → refresh → retry ────────────────────────────────────────
 
   @override
   Future<void> onError(
@@ -95,6 +102,7 @@ class JwtInterceptor extends Interceptor {
         return;
       }
 
+      // Reuse _dio but mark skipAuth so this call is not intercepted again.
       final refreshResponse = await _dio.post<Map<String, dynamic>>(
         Endpoints.authRefresh,
         data: {'refreshToken': refreshToken},
@@ -121,6 +129,7 @@ class JwtInterceptor extends Interceptor {
       dev.log('Token refreshed successfully.', name: _tag);
       await AuthStorageService.saveAuthTokens(newAccessToken, newRefreshToken);
 
+      // Retry the original request with the new token.
       final retryOptions = err.requestOptions..headers['Authorization'] = 'Bearer $newAccessToken';
       final retryResponse = await _dio.fetch<dynamic>(retryOptions);
       handler.resolve(retryResponse);
@@ -140,6 +149,8 @@ class JwtInterceptor extends Interceptor {
       _isRefreshing = false;
     }
   }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   Future<void> _forceLogout() async {
     await AuthStorageService.clearAuthTokens();
