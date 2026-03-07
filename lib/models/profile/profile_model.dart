@@ -90,6 +90,31 @@ class ProfileModel {
     );
   }
 
+  /// Full JSON for cache persistence. Use with [ProfileModel.fromJson].
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'userId': userId,
+      'email': email,
+      'name': name,
+      'role': role,
+      'phone': phone,
+      'profilePhotoUrl': profilePhotoUrl,
+      'createdAt': createdAt,
+      'dateOfBirth': dateOfBirth,
+      'age': age,
+      'city': city,
+      'cityImageUrl': cityImageUrl,
+      'address': address,
+      'gender': gender,
+      'bloodGroup': bloodGroup,
+      'emergencyContacts': emergencyContacts?.map((e) => e.toJson()).toList(),
+      'preExistingConditions': preExistingConditions,
+      'profileComplete': profileComplete,
+      'onboardingStep': onboardingStep,
+      'settings': settings.toJson(),
+    };
+  }
+
   /// "Member since YYYY" derived from createdAt ISO timestamp.
   String get memberSince {
     if (createdAt == null) return '';
