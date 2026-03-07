@@ -53,7 +53,7 @@ class WiseCareAgentApp extends StatelessWidget {
         builder: (_, mode, __) {
           final app = MaterialApp.router(
             key: Key(mode.name),
-            title: 'WiseCare Agent',
+            title: 'WiseAgent',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.commonThemeData,
             scrollBehavior: AppTheme.appScrollBehavior,
