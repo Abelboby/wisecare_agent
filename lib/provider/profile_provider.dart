@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wisecare_agent/utils/file_reader_stub.dart'
-    if (dart.library.io) 'package:wisecare_agent/utils/file_reader_io.dart'
-    as file_reader;
+    if (dart.library.io) 'package:wisecare_agent/utils/file_reader_io.dart' as file_reader;
 
 import 'package:wisecare_agent/models/profile/profile_model.dart';
 import 'package:wisecare_agent/navigation/app_navigator.dart';
@@ -48,9 +47,7 @@ class ProfileProvider extends ChangeNotifier {
       _profileLoaded = true;
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
       _isProfileLoading = false;
       notifyListeners();
@@ -58,11 +55,14 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   /// Picks an image, uploads via POST /uploads, then updates profile with the URL.
+  /// Uses [FileType.custom] with image extensions to avoid MissingPluginException
+  /// for method "image" on platforms where it is not implemented (e.g. web/desktop).
   Future<void> uploadProfilePhoto() async {
     if (_isLoading) return;
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+        type: FileType.custom,
+        allowedExtensions: _imageFileExtensions,
         allowMultiple: false,
         withData: true,
       );
@@ -95,15 +95,21 @@ class ProfileProvider extends ChangeNotifier {
       );
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
       _isLoading = false;
       _isUploadingPhoto = false;
       notifyListeners();
     }
   }
+
+  static const List<String> _imageFileExtensions = <String>[
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'webp',
+  ];
 
   static String _mimeFromExtension(String fileName) {
     final ext = fileName.split('.').last.toLowerCase();
@@ -129,9 +135,7 @@ class ProfileProvider extends ChangeNotifier {
       _profile = await _profileRepository.updateProfile(request);
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -149,9 +153,7 @@ class ProfileProvider extends ChangeNotifier {
       _profile = await _profileRepository.getProfile();
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -171,9 +173,7 @@ class ProfileProvider extends ChangeNotifier {
       }
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -195,9 +195,7 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
       AppNavigator.navigate(AppRoutes.login);
     } catch (e) {
-      _errorMessage = e is Exception
-          ? e.toString().replaceFirst('Exception: ', '')
-          : e.toString();
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
       _isLoading = false;
       notifyListeners();
     }
