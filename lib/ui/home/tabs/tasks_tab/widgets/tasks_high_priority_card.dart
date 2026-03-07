@@ -144,7 +144,7 @@ class _TasksHighPriorityCard extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => _onAcceptAndNavigate(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Skin.color(Co.primary),
                       foregroundColor: Skin.color(Co.onPrimary),
@@ -192,5 +192,20 @@ class _TasksHighPriorityCard extends StatelessWidget {
         color: Skin.color(Co.loginSubtitle),
       ),
     );
+  }
+
+  Future<void> _onAcceptAndNavigate(BuildContext context) async {
+    final homeProvider = context.read<HomeProvider>();
+    final error = await homeProvider.updateRequestStatus(
+      task.id,
+      'ACCEPTED',
+      notes: null,
+    );
+    if (!context.mounted) return;
+    if (error != null && error.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+    }
   }
 }
