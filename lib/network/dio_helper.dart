@@ -18,6 +18,8 @@ class DioHelper {
         receiveTimeout: Duration(milliseconds: StaticValues.receiveTimeout),
       ),
     );
+    // Pass the Dio instance into the interceptor so it can retry requests
+    // after a successful token refresh.
     _dio!.interceptors.add(JwtInterceptor(dio: _dio!));
     return _dio!;
   }
