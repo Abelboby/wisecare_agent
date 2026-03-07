@@ -10,6 +10,7 @@ import 'package:wisecare_agent/navigation/app_navigator.dart';
 import 'package:wisecare_agent/navigation/routes.dart';
 import 'package:wisecare_agent/repositories/profile_repository.dart';
 import 'package:wisecare_agent/services/auth_service.dart';
+import 'package:wisecare_agent/services/profile_cache_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
   ProfileProvider({ProfileRepository? profileRepository})
@@ -34,8 +35,18 @@ class ProfileProvider extends ChangeNotifier {
 
   bool _profileLoaded = false;
 
+  /// Loads profile from cache into state (no API). Use on cold start so UI can show cached data.
+  void loadCachedProfile() {
+    final cached = ProfileCacheService.getCachedProfile();
+    if (cached != null && _profile != cached) {
+      _profile = cached;
+      notifyListeners();
+    }
+  }
+
   /// Loads the user profile from GET /users/me. Safe to call multiple times;
   /// subsequent calls after the first successful load are no-ops unless [forceRefresh] is true.
+  /// Saves fetched profile to cache.
   Future<void> loadProfile({bool forceRefresh = false}) async {
     if (forceRefresh) _profileLoaded = false;
     if (_profileLoaded || _isProfileLoading) return;
@@ -46,6 +57,7 @@ class ProfileProvider extends ChangeNotifier {
       _profile = await _profileRepository.getProfile();
       _profileLoaded = true;
       _errorMessage = null;
+      await ProfileCacheService.saveCachedProfile(_profile);
     } catch (e) {
       _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
@@ -94,6 +106,7 @@ class ProfileProvider extends ChangeNotifier {
         UpdateProfileRequest(profilePhotoUrl: url),
       );
       _errorMessage = null;
+      await ProfileCacheService.saveCachedProfile(_profile);
     } catch (e) {
       _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
@@ -134,6 +147,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       _profile = await _profileRepository.updateProfile(request);
       _errorMessage = null;
+      await ProfileCacheService.saveCachedProfile(_profile);
     } catch (e) {
       _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
@@ -152,6 +166,7 @@ class ProfileProvider extends ChangeNotifier {
       await _profileRepository.updateEmergencyContacts(contacts);
       _profile = await _profileRepository.getProfile();
       _errorMessage = null;
+      await ProfileCacheService.saveCachedProfile(_profile);
     } catch (e) {
       _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
     } finally {
@@ -188,6 +203,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await AuthService.signOut();
+      await ProfileCacheService.clearCachedProfile();
       _profile = null;
       _profileLoaded = false;
       _errorMessage = null;
