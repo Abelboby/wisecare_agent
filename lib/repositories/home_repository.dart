@@ -11,4 +11,12 @@ class HomeRepository {
   Future<CompletedTodayModel> getCompletedTodayStats() async {
     return HomeService.getCompletedTodayStats();
   }
+
+  Future<void> updateRequestStatus(
+    String requestId,
+    String status, {
+    String? notes,
+  }) async {
+    await HomeService.updateRequestStatus(requestId, status, notes: notes);
+  }
 }
