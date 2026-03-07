@@ -44,6 +44,36 @@ class ProfileService {
     }
   }
 
+  /// POST /uploads — upload file (base64) to storage. Returns public URL.
+  Future<String> uploadFile({
+    required String base64Data,
+    required String fileType,
+    required String fileName,
+    String folder = 'profile-photos',
+  }) async {
+    try {
+      final response = await DioHelper.instance.post<Map<String, dynamic>>(
+        Endpoints.uploads,
+        data: <String, dynamic>{
+          'fileData': base64Data,
+          'fileType': fileType,
+          'fileName': fileName,
+          'folder': folder,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      );
+      final data = response.data;
+      if (data == null) throw Exception('Invalid response from server.');
+      final url = data['url'] as String?;
+      if (url == null || url.isEmpty) {
+        throw Exception('No URL returned from upload.');
+      }
+      return url;
+    } on DioException catch (e) {
+      throw Exception(_messageFromDioException(e));
+    }
+  }
+
   /// PUT /users/me — update profile fields. Fetches full profile after update.
   Future<ProfileModel> updateProfile(UpdateProfileRequest request) async {
     try {
