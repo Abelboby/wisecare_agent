@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wisecare_agent/models/profile/profile_model.dart';
 import 'package:wisecare_agent/provider/home_provider.dart';
 import 'package:wisecare_agent/provider/profile_provider.dart';
+import 'package:wisecare_agent/ui/home/tabs/profile_tab/edit_profile_screen.dart';
 import 'package:wisecare_agent/utils/theme/colors/app_color.dart';
 import 'package:wisecare_agent/utils/theme/theme_manager.dart';
 
@@ -25,6 +26,14 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     });
   }
 
+  void _openEditProfile(BuildContext context) {
+    Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => const EditProfileScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,36 +41,95 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
       body: Consumer2<ProfileProvider, HomeProvider>(
         builder: (context, profileProvider, homeProvider, _) {
           final profile = profileProvider.profile;
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: _ProfileHeaderWithStats(
-                  tasksCount: homeProvider.activeTasks.length,
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _ProfileDetailsCard(profile: profile),
-                    const SizedBox(height: 16),
-                    _ProfileQuickActionsCard(
-                      isOnline: homeProvider.isOnline,
-                      onToggleOnline: () {
-                        if (homeProvider.isOnline) {
-                          homeProvider.setOffline();
-                        } else {
-                          homeProvider.setOnline();
-                        }
-                      },
-                      onViewCertification: () {},
-                      onLogout: () => profileProvider.signOut(),
-                      isLoggingOut: profileProvider.isLoading,
+          final isLoading = profileProvider.isProfileLoading;
+          final errorMessage = profileProvider.errorMessage;
+
+          if (isLoading && profile == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Skin.color(Co.primary)),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading profile...',
+                    style: GoogleFonts.lexend(
+                      fontSize: 14,
+                      color: Skin.color(Co.loginLabel),
                     ),
-                  ]),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (errorMessage != null && errorMessage.isNotEmpty && profile == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      errorMessage,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.lexend(
+                        fontSize: 14,
+                        color: Skin.color(Co.error),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () {
+                        profileProvider.loadProfile();
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Skin.color(Co.primary),
+                      ),
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => profileProvider.loadProfile(forceRefresh: true),
+            color: Skin.color(Co.primary),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _ProfileHeaderWithStats(
+                    tasksCount: homeProvider.activeTasks.length,
+                    onEditProfile: () => _openEditProfile(context),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _ProfileDetailsCard(profile: profile),
+                      const SizedBox(height: 16),
+                      _ProfileQuickActionsCard(
+                        isOnline: homeProvider.isOnline,
+                        onToggleOnline: () {
+                          if (homeProvider.isOnline) {
+                            homeProvider.setOffline();
+                          } else {
+                            homeProvider.setOnline();
+                          }
+                        },
+                        onViewCertification: () {},
+                        onLogout: () => profileProvider.signOut(),
+                        isLoggingOut: profileProvider.isLoading,
+                      ),
+                    ]),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -71,9 +139,13 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
 /// Wraps header and stats so stats paint on top and extend a little below the header.
 class _ProfileHeaderWithStats extends StatelessWidget {
-  const _ProfileHeaderWithStats({required this.tasksCount});
+  const _ProfileHeaderWithStats({
+    required this.tasksCount,
+    required this.onEditProfile,
+  });
 
   final int tasksCount;
+  final VoidCallback onEditProfile;
 
   /// How far the stats cards extend below the header (positive = into content area).
   static const double _statsOverlapBelow = 64;
@@ -83,7 +155,7 @@ class _ProfileHeaderWithStats extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        const _ProfileHeader(),
+        _ProfileHeader(onEditProfile: onEditProfile),
         Positioned(
           left: 16,
           right: 16,
@@ -96,7 +168,9 @@ class _ProfileHeaderWithStats extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  const _ProfileHeader({required this.onEditProfile});
+
+  final VoidCallback onEditProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +221,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                   _ProfileHeaderButton(
                     icon: Icons.settings_rounded,
-                    onPressed: () {},
+                    onPressed: onEditProfile,
                   ),
                 ],
               ),
