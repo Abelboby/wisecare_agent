@@ -72,12 +72,8 @@ class _NavLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = isSelected
-        ? Skin.color(Co.primary)
-        : Skin.color(Co.homeNavIconInactive);
-    final labelColor = isSelected
-        ? Skin.color(Co.primary)
-        : Skin.color(Co.homeNavIconInactive);
+    final iconColor = isSelected ? Skin.color(Co.primary) : Skin.color(Co.homeNavIconInactive);
+    final labelColor = isSelected ? Skin.color(Co.primary) : Skin.color(Co.homeNavIconInactive);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
