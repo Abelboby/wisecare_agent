@@ -292,4 +292,128 @@ class Co {
     dark: Color(0x33FF6933),
     grayscale: Color(0x33FF6933),
   );
+
+  // ── Home (agent) ─────────────────────────────────────────────────────────
+  static const AppColor homeHeaderBg = AppColor(
+    light: Color(0xCCFFFFFF),
+    dark: Color(0xCC2D2D2D),
+    grayscale: Color(0xCCFAFAFA),
+  );
+  static const AppColor homeHeaderBorder = AppColor(
+    light: Color(0x1AFF6933),
+    dark: Color(0x1AFF6933),
+    grayscale: Color(0x1A424242),
+  );
+  static const AppColor homeStatusOnline = AppColor(
+    light: Color(0xFF22C55E),
+    dark: Color(0xFF22C55E),
+    grayscale: Color(0xFF22C55E),
+  );
+  static const AppColor homeNavBarBorder = AppColor(
+    light: Color(0xFFE2E8F0),
+    dark: Color(0xFF49454F),
+    grayscale: Color(0xFFE0E0E0),
+  );
+  static const AppColor homeNavIconInactive = AppColor(
+    light: Color(0xFF94A3B8),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF757575),
+  );
+  static const AppColor homePriorityHigh = AppColor(
+    light: Color(0xFFEF4444),
+    dark: Color(0xFFEF4444),
+    grayscale: Color(0xFFB3261E),
+  );
+  static const AppColor homePriorityMedium = AppColor(
+    light: Color(0xFFF59E0B),
+    dark: Color(0xFFF59E0B),
+    grayscale: Color(0xFFF59E0B),
+  );
+  static const AppColor homeCardBorder = AppColor(
+    light: Color(0xFFF1F5F9),
+    dark: Color(0xFF49454F),
+    grayscale: Color(0xFFE0E0E0),
+  );
+  static const AppColor homeStatsTasksBg = AppColor(
+    light: Color(0xFFDCFCE7),
+    dark: Color(0xFF1B4332),
+    grayscale: Color(0xFFE8F5E9),
+  );
+  static const AppColor homeStatsTasksIcon = AppColor(
+    light: Color(0xFF16A34A),
+    dark: Color(0xFF4ADE80),
+    grayscale: Color(0xFF16A34A),
+  );
+  static const AppColor homeStatsDistanceBg = AppColor(
+    light: Color(0xFFDBEAFE),
+    dark: Color(0xFF1E3A5F),
+    grayscale: Color(0xFFE3F2FD),
+  );
+  static const AppColor homeStatsDistanceIcon = AppColor(
+    light: Color(0xFF2563EB),
+    dark: Color(0xFF60A5FA),
+    grayscale: Color(0xFF2563EB),
+  );
+  static const AppColor homeStatsLabel = AppColor(
+    light: Color(0xFF64748B),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF757575),
+  );
+  static const AppColor homeCompletedSectionBg = AppColor(
+    light: Color(0x0DFF6933),
+    dark: Color(0x0DFF6933),
+    grayscale: Color(0x0D424242),
+  );
+  static const AppColor homeCompletedSectionBorder = AppColor(
+    light: Color(0x1AFF6933),
+    dark: Color(0x1AFF6933),
+    grayscale: Color(0x1A424242),
+  );
+
+  // ── Profile (agent profile tab) ─────────────────────────────────────────
+  static const AppColor profileHeaderButtonBg = AppColor(
+    light: Color(0x1AFFFFFF),
+    dark: Color(0x1AFFFFFF),
+    grayscale: Color(0x1AFFFFFF),
+  );
+  static const AppColor profileOnlineBadgeBorder = AppColor(
+    light: Color(0xFF1A1A2E),
+    dark: Color(0xFF1A1A2E),
+    grayscale: Color(0xFF1A1A2E),
+  );
+  static const AppColor profileVerifiedBg = AppColor(
+    light: Color(0xFFDCFCE7),
+    dark: Color(0xFFDCFCE7),
+    grayscale: Color(0xFFDCFCE7),
+  );
+  static const AppColor profileVerifiedText = AppColor(
+    light: Color(0xFF15803D),
+    dark: Color(0xFF15803D),
+    grayscale: Color(0xFF15803D),
+  );
+  static const AppColor profileLogoutRed = AppColor(
+    light: Color(0xFFDC2626),
+    dark: Color(0xFFDC2626),
+    grayscale: Color(0xFFDC2626),
+  );
+  static const AppColor profileStarRating = AppColor(
+    light: Color(0xFFEAB308),
+    dark: Color(0xFFEAB308),
+    grayscale: Color(0xFFEAB308),
+  );
+  static const AppColor profileQuickActionIcon = AppColor(
+    light: Color(0xFF475569),
+    dark: Color(0xFF475569),
+    grayscale: Color(0xFF475569),
+  );
+  static const AppColor profileSectionTitle = AppColor(
+    light: Color(0xFF94A3B8),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF94A3B8),
+  );
+  static const AppColor profileDetailValue = AppColor(
+    light: Color(0xFF1E293B),
+    dark: Color(0xFF1E293B),
+    grayscale: Color(0xFF1E293B),
+  );
 }
