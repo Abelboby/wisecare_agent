@@ -18,15 +18,13 @@ class $AssetsIconsGen {
   const $AssetsIconsGen();
 
   /// File path: assets/icons/app_icon.png
-  AssetGenImage get appIconPng =>
-      const AssetGenImage('assets/icons/app_icon.png');
+  AssetGenImage get appIconPng => const AssetGenImage('assets/icons/app_icon.png');
 
   /// File path: assets/icons/app_icon.svg
   SvgGenImage get appIconSvg => const SvgGenImage('assets/icons/app_icon.svg');
 
   /// File path: assets/icons/google_logo.svg
-  SvgGenImage get googleLogo =>
-      const SvgGenImage('assets/icons/google_logo.svg');
+  SvgGenImage get googleLogo => const SvgGenImage('assets/icons/google_logo.svg');
 
   /// List of all assets
   List<dynamic> get values => [appIconPng, appIconSvg, googleLogo];
@@ -200,8 +198,7 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter: colorFilter ??
-          (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
+      colorFilter: colorFilter ?? (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
     );
