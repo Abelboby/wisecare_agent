@@ -75,12 +75,71 @@ class _MapTabScreenState extends State<MapTabScreen> {
   final List<Marker> _markers = [];
   LatLng? _userLocation;
   MapLayerType _mapLayer = MapLayerType.standard;
+  bool _mapControllerReady = false;
+  LatLng? _pendingInitialCenter;
+  bool _locationFetchFailed = false;
+  bool _locationSnackbarShown = false;
 
   void _refresh() => mounted ? setState(() {}) : null;
 
   @override
   void initState() {
     super.initState();
+    _fetchAndSetInitialLocation();
+  }
+
+  Future<void> _fetchAndSetInitialLocation() async {
+    try {
+      final status = await Permission.location.request();
+      if (!mounted) return;
+      if (!status.isGranted) {
+        _pendingInitialCenter = _kDefaultMapCenter;
+        _locationFetchFailed = true;
+        _refresh();
+        _tryApplyInitialCamera();
+        _showLocationFailedSnackbarIfNeeded();
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      if (!mounted) return;
+      final userLatLng = LatLng(position.latitude, position.longitude);
+      _userLocation = userLatLng;
+      _pendingInitialCenter = userLatLng;
+      _refresh();
+      _tryApplyInitialCamera();
+    } catch (_) {
+      if (!mounted) return;
+      _pendingInitialCenter = _kDefaultMapCenter;
+      _locationFetchFailed = true;
+      _refresh();
+      _tryApplyInitialCamera();
+      _showLocationFailedSnackbarIfNeeded();
+    }
+  }
+
+  void _tryApplyInitialCamera() {
+    if (_pendingInitialCenter == null || !_mapControllerReady) return;
+    _mapController.move(_pendingInitialCenter!, _kDefaultZoom);
+  }
+
+  void _showLocationFailedSnackbarIfNeeded() {
+    if (!_locationFetchFailed || _locationSnackbarShown) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _locationSnackbarShown) return;
+      _locationSnackbarShown = true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Location cannot be fetched right now. Showing default map.',
+            style: GoogleFonts.lexend(fontSize: 14, color: Skin.color(Co.onPrimary)),
+          ),
+          backgroundColor: Skin.color(Co.loginHeading),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
   }
 
   List<Marker> _buildMarkersWithUserLocation(BuildContext context) {
@@ -120,6 +179,12 @@ class _MapTabScreenState extends State<MapTabScreen> {
                         initialZoom: _kDefaultZoom,
                         minZoom: _kMinZoom,
                         maxZoom: _kMaxZoom,
+                        onMapReady: () {
+                          _mapControllerReady = true;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _tryApplyInitialCamera();
+                          });
+                        },
                       ),
                       children: [
                         _tileLayerFor(_mapLayer),
