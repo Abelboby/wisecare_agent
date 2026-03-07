@@ -5,7 +5,7 @@ class _HomeDimens {
   _HomeDimens._();
 
   static const double navBarPaddingTop = 12;
-  static const double navBarPaddingH = 24;
+  static const double navBarPaddingH = 56;
   static const double navBarPaddingBottom = 24;
   static const double navBarHeight = 76;
   static const double navBarIconLabelGap = 4;
