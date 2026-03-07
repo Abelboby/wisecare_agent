@@ -73,4 +73,22 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Updates status for a request (e.g. ACCEPTED, IN_PROGRESS, COMPLETED).
+  /// On success refreshes tasks. Returns error message or null.
+  Future<String?> updateRequestStatus(
+    String requestId,
+    String status, {
+    String? notes,
+  }) async {
+    try {
+      await _repository.updateRequestStatus(requestId, status, notes: notes);
+      await loadTasks();
+      return null;
+    } catch (e) {
+      return e is Exception
+          ? e.toString().replaceFirst('Exception: ', '')
+          : e.toString();
+    }
+  }
 }
