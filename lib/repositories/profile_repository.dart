@@ -13,6 +13,19 @@ class ProfileRepository {
   Future<ProfileSettings> updateSettings(ProfileSettings settings) =>
       _profileService.updateSettings(settings);
 
+  Future<String> uploadFile({
+    required String base64Data,
+    required String fileType,
+    required String fileName,
+    String folder = 'profile-photos',
+  }) =>
+      _profileService.uploadFile(
+        base64Data: base64Data,
+        fileType: fileType,
+        fileName: fileName,
+        folder: folder,
+      );
+
   Future<ProfileModel> updateProfile(UpdateProfileRequest request) =>
       _profileService.updateProfile(request);
 
