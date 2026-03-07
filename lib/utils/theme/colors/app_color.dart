@@ -142,4 +142,154 @@ class Co {
     dark: Color(0xFF354670),
     grayscale: Color(0xFF4A5568),
   );
+
+  static const AppColor splashSubtitle = AppColor(
+    light: Color(0xE6FF6933),
+    dark: Color(0xE6FF6933),
+    grayscale: Color(0xE6FF6933),
+  );
+
+  static const AppColor splashLoadingLabel = AppColor(
+    light: Color(0x66FFFFFF),
+    dark: Color(0x66FFFFFF),
+    grayscale: Color(0x66FFFFFF),
+  );
+
+  static const AppColor splashLoadingPercent = AppColor(
+    light: Color(0x99FFFFFF),
+    dark: Color(0x99FFFFFF),
+    grayscale: Color(0x99FFFFFF),
+  );
+
+  static const AppColor splashStatusText = AppColor(
+    light: Color(0x4DFFFFFF),
+    dark: Color(0x4DFFFFFF),
+    grayscale: Color(0x4DFFFFFF),
+  );
+
+  static const AppColor splashProgressTrack = AppColor(
+    light: Color(0x1AFFFFFF),
+    dark: Color(0x1AFFFFFF),
+    grayscale: Color(0x1AFFFFFF),
+  );
+
+  static const AppColor splashLogoRingFill = AppColor(
+    light: Color(0x0DFFFFFF),
+    dark: Color(0x0DFFFFFF),
+    grayscale: Color(0x0DFFFFFF),
+  );
+
+  static const AppColor splashLogoRingBorder = AppColor(
+    light: Color(0x1AFFFFFF),
+    dark: Color(0x1AFFFFFF),
+    grayscale: Color(0x1AFFFFFF),
+  );
+
+  static const AppColor splashBlurOrangeTop = AppColor(
+    light: Color(0x33FF6933),
+    dark: Color(0x33FF6933),
+    grayscale: Color(0x33FF6933),
+  );
+
+  static const AppColor splashBlurOrangeBottom = AppColor(
+    light: Color(0x1AFF6933),
+    dark: Color(0x1AFF6933),
+    grayscale: Color(0x1AFF6933),
+  );
+
+  static const AppColor splashBadgeShadow = AppColor(
+    light: Color(0x1A000000),
+    dark: Color(0x1A000000),
+    grayscale: Color(0x1A000000),
+  );
+
+  static const AppColor loginCardBorder = AppColor(
+    light: Color(0xFFE2E8F0),
+    dark: Color(0xFFE2E8F0),
+    grayscale: Color(0xFFE2E8F0),
+  );
+
+  static const AppColor loginHeading = AppColor(
+    light: Color(0xFF0F172A),
+    dark: Color(0xFF0F172A),
+    grayscale: Color(0xFF0F172A),
+  );
+
+  static const AppColor loginSubtitle = AppColor(
+    light: Color(0xFF64748B),
+    dark: Color(0xFF64748B),
+    grayscale: Color(0xFF64748B),
+  );
+
+  static const AppColor loginInstruction = AppColor(
+    light: Color(0xFF475569),
+    dark: Color(0xFF475569),
+    grayscale: Color(0xFF475569),
+  );
+
+  static const AppColor loginLabel = AppColor(
+    light: Color(0xFF334155),
+    dark: Color(0xFF334155),
+    grayscale: Color(0xFF334155),
+  );
+
+  static const AppColor loginInputBg = AppColor(
+    light: Color(0xFFF8FAFC),
+    dark: Color(0xFFF8FAFC),
+    grayscale: Color(0xFFF8FAFC),
+  );
+
+  static const AppColor loginInputBorder = AppColor(
+    light: Color(0xFFE2E8F0),
+    dark: Color(0xFFE2E8F0),
+    grayscale: Color(0xFFE2E8F0),
+  );
+
+  static const AppColor loginPlaceholder = AppColor(
+    light: Color(0xFF6B7280),
+    dark: Color(0xFF6B7280),
+    grayscale: Color(0xFF6B7280),
+  );
+
+  static const AppColor loginIconMuted = AppColor(
+    light: Color(0xFF94A3B8),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF94A3B8),
+  );
+
+  static const AppColor loginContactBorder = AppColor(
+    light: Color(0xFFF1F5F9),
+    dark: Color(0xFFF1F5F9),
+    grayscale: Color(0xFFF1F5F9),
+  );
+
+  static const AppColor loginFooterDivider = AppColor(
+    light: Color(0xFF94A3B8),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF94A3B8),
+  );
+
+  static const AppColor loginFooterBrand = AppColor(
+    light: Color(0xFF475569),
+    dark: Color(0xFF475569),
+    grayscale: Color(0xFF475569),
+  );
+
+  static const AppColor loginFooterDisclaimer = AppColor(
+    light: Color(0xFF94A3B8),
+    dark: Color(0xFF94A3B8),
+    grayscale: Color(0xFF94A3B8),
+  );
+
+  static const AppColor loginLogoIconBg = AppColor(
+    light: Color(0x1AFF6933),
+    dark: Color(0x1AFF6933),
+    grayscale: Color(0x1AFF6933),
+  );
+
+  static const AppColor loginButtonShadow = AppColor(
+    light: Color(0x33FF6933),
+    dark: Color(0x33FF6933),
+    grayscale: Color(0x33FF6933),
+  );
 }
