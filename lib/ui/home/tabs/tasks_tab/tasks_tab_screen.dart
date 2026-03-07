@@ -12,66 +12,14 @@ import 'package:wisecare_agent/utils/theme/colors/app_color.dart';
 import 'package:wisecare_agent/utils/theme/theme_manager.dart';
 
 part 'tasks_tab_variables.dart';
+part 'tasks_tab_functions.dart';
 part 'widgets/tasks_header.dart';
 part 'widgets/tasks_active_section.dart';
 part 'widgets/tasks_empty_state.dart';
 part 'widgets/tasks_high_priority_card.dart';
 part 'widgets/tasks_medium_priority_card.dart';
 part 'widgets/tasks_completed_today_section.dart';
-
-/// Wraps a task card with a short fade-in so new tasks don't pop in.
-class _StaggeredTaskCard extends StatefulWidget {
-  const _StaggeredTaskCard({required this.index, required this.task});
-
-  final int index;
-  final AgentTaskModel task;
-
-  @override
-  State<_StaggeredTaskCard> createState() => _StaggeredTaskCardState();
-}
-
-class _StaggeredTaskCardState extends State<_StaggeredTaskCard> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 280),
-    );
-    _opacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    Future<void>.delayed(
-      Duration(milliseconds: widget.index * 60),
-      () {
-        if (mounted) _controller.forward();
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final card = widget.task.priority == AgentTaskPriority.high
-        ? _TasksHighPriorityCard(task: widget.task)
-        : _TasksMediumPriorityCard(task: widget.task);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: _TasksTabDimens.contentGap),
-      child: FadeTransition(
-        opacity: _opacity,
-        child: card,
-      ),
-    );
-  }
-}
+part 'widgets/tasks_staggered_card.dart';
 
 /// Tasks tab: header, active tasks list, completed today stats.
 class TasksTabScreen extends StatefulWidget {
@@ -85,12 +33,7 @@ class _TasksTabScreenState extends State<TasksTabScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ProfileProvider>().loadProfile();
-        context.read<HomeProvider>().loadTasks();
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadInitialData());
   }
 
   @override
