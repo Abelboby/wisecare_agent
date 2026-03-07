@@ -370,6 +370,78 @@ class Co {
     grayscale: Color(0x1A424242),
   );
 
+  // ── Map tab (agent view) ───────────────────────────────────────────────
+  static const AppColor mapAreaBg = AppColor(
+    light: Color(0xFFE2E8F0),
+    dark: Color(0xFFE2E8F0),
+    grayscale: Color(0xFFE2E8F0),
+  );
+  static const AppColor mapHeaderBg = AppColor(
+    light: Color(0xF2FFFFFF),
+    dark: Color(0xF2FFFFFF),
+    grayscale: Color(0xF2FFFFFF),
+  );
+  static const AppColor mapHeaderBorder = AppColor(
+    light: Color(0xFFF1F5F9),
+    dark: Color(0xFFF1F5F9),
+    grayscale: Color(0xFFF1F5F9),
+  );
+  static const AppColor mapMarkerSos = AppColor(
+    light: Color(0xFFDC2626),
+    dark: Color(0xFFDC2626),
+    grayscale: Color(0xFFDC2626),
+  );
+  static const AppColor mapMarkerPharmacy = AppColor(
+    light: Color(0xFF3B82F6),
+    dark: Color(0xFF3B82F6),
+    grayscale: Color(0xFF3B82F6),
+  );
+  static const AppColor mapMarkerFood = AppColor(
+    light: Color(0xFFFBBF24),
+    dark: Color(0xFFFBBF24),
+    grayscale: Color(0xFFFBBF24),
+  );
+  static const AppColor mapOverlayButtonBg = AppColor(
+    light: Color(0xFFFFFFFF),
+    dark: Color(0xFFFFFFFF),
+    grayscale: Color(0xFFFFFFFF),
+  );
+  static const AppColor mapSheetDragHandle = AppColor(
+    light: Color(0xFFE2E8F0),
+    dark: Color(0xFFE2E8F0),
+    grayscale: Color(0xFFE2E8F0),
+  );
+  static const AppColor mapSheetNearBadgeBg = AppColor(
+    light: Color(0x1AFF6933),
+    dark: Color(0x1AFF6933),
+    grayscale: Color(0x1AFF6933),
+  );
+  static const AppColor mapEmergencyCardBg = AppColor(
+    light: Color(0xFFFEF2F2),
+    dark: Color(0xFFFEF2F2),
+    grayscale: Color(0xFFFEF2F2),
+  );
+  static const AppColor mapEmergencyCardBorder = AppColor(
+    light: Color(0xFFFEE2E2),
+    dark: Color(0xFFFEE2E2),
+    grayscale: Color(0xFFFEE2E2),
+  );
+  static const AppColor mapTaskCardBg = AppColor(
+    light: Color(0xFFF8FAFC),
+    dark: Color(0xFFF8FAFC),
+    grayscale: Color(0xFFF8FAFC),
+  );
+  static const AppColor mapTaskCardBorder = AppColor(
+    light: Color(0xFFF1F5F9),
+    dark: Color(0xFFF1F5F9),
+    grayscale: Color(0xFFF1F5F9),
+  );
+  static const AppColor mapAgentViewTitle = AppColor(
+    light: Color(0xFF1A1A2E),
+    dark: Color(0xFF1A1A2E),
+    grayscale: Color(0xFF1A1A2E),
+  );
+
   // ── Profile (agent profile tab) ─────────────────────────────────────────
   static const AppColor profileHeaderButtonBg = AppColor(
     light: Color(0x1AFFFFFF),
