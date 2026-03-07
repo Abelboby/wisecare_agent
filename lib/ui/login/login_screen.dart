@@ -6,7 +6,11 @@ import 'package:wisecare_agent/provider/login_provider.dart';
 import 'package:wisecare_agent/utils/theme/colors/app_color.dart';
 import 'package:wisecare_agent/utils/theme/theme_manager.dart';
 
+part 'login_functions.dart';
+part 'login_variables.dart';
+
 /// Login screen: Agent ID, password, and sign-in for field representatives.
+/// Follows [NEW_SCREEN_DEV](docs/NEW_SCREEN_DEV.md) logic and part-file structure.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,9 +19,19 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _obscurePassword = true;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
 
-  void _refresh() => mounted ? setState(() {}) : null;
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +41,20 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Consumer<LoginProvider>(
           builder: (context, provider, _) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(_LoginDimens.screenPadding),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 440),
+                  constraints: const BoxConstraints(maxWidth: _LoginDimens.cardMaxWidth),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _LoginCard(provider: provider),
+                      _LoginCard(
+                        emailController: _emailController,
+                        passwordController: _passwordController,
+                        emailFocusNode: _emailFocusNode,
+                        passwordFocusNode: _passwordFocusNode,
+                        onSignIn: () => _handleSignIn(context),
+                      ),
                       const SizedBox(height: 32),
                       const _LoginFooter(),
                     ],
@@ -50,22 +70,32 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class _LoginCard extends StatelessWidget {
-  const _LoginCard({required this.provider});
+  const _LoginCard({
+    required this.emailController,
+    required this.passwordController,
+    required this.emailFocusNode,
+    required this.passwordFocusNode,
+    required this.onSignIn,
+  });
 
-  final LoginProvider provider;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final FocusNode emailFocusNode;
+  final FocusNode passwordFocusNode;
+  final VoidCallback onSignIn;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: 440),
+      constraints: const BoxConstraints(maxWidth: _LoginDimens.cardMaxWidth),
       decoration: BoxDecoration(
         color: Skin.color(Co.cardSurface),
         border: Border.all(color: Skin.color(Co.loginCardBorder)),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(_LoginDimens.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 50,
             offset: const Offset(0, 25),
             spreadRadius: -12,
@@ -77,7 +107,13 @@ class _LoginCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const _LoginCardHeader(),
-          _LoginFormSection(provider: provider),
+          _LoginFormSection(
+            emailController: emailController,
+            passwordController: passwordController,
+            emailFocusNode: emailFocusNode,
+            passwordFocusNode: passwordFocusNode,
+            onSignIn: onSignIn,
+          ),
           const _LoginContactSection(),
         ],
       ),
@@ -91,11 +127,16 @@ class _LoginCardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 32, 32, 16),
+      padding: const EdgeInsets.fromLTRB(
+        _LoginDimens.cardPaddingH,
+        _LoginDimens.cardPaddingTop,
+        _LoginDimens.cardPaddingH,
+        _LoginDimens.gapAfterHeader,
+      ),
       child: Column(
         children: [
           Container(
-            width: 48,
+            width: _LoginDimens.headerIconSize,
             height: 54,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -104,11 +145,11 @@ class _LoginCardHeader extends StatelessWidget {
             ),
             child: Icon(
               Icons.shield,
-              size: 30,
+              size: _LoginDimens.headerIconInner,
               color: Skin.color(Co.primary),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: _LoginDimens.gapAfterHeader),
           Text(
             'WiseAgent',
             textAlign: TextAlign.center,
@@ -120,7 +161,7 @@ class _LoginCardHeader extends StatelessWidget {
               color: Skin.color(Co.loginHeading),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: _LoginDimens.gapAfterTitle),
           Text(
             'Secure Portal for Field Representatives',
             textAlign: TextAlign.center,
@@ -138,9 +179,19 @@ class _LoginCardHeader extends StatelessWidget {
 }
 
 class _LoginFormSection extends StatefulWidget {
-  const _LoginFormSection({required this.provider});
+  const _LoginFormSection({
+    required this.emailController,
+    required this.passwordController,
+    required this.emailFocusNode,
+    required this.passwordFocusNode,
+    required this.onSignIn,
+  });
 
-  final LoginProvider provider;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final FocusNode emailFocusNode;
+  final FocusNode passwordFocusNode;
+  final VoidCallback onSignIn;
 
   @override
   State<_LoginFormSection> createState() => _LoginFormSectionState();
@@ -153,9 +204,13 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = widget.provider;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 48),
+      padding: const EdgeInsets.fromLTRB(
+        _LoginDimens.cardPaddingH,
+        _LoginDimens.gapSection,
+        _LoginDimens.cardPaddingH,
+        _LoginDimens.cardPaddingBottom,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -168,7 +223,7 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               color: Skin.color(Co.loginHeading),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: _LoginDimens.gapAfterTitle),
           Text(
             'Please enter your credentials to access your dashboard and active cases.',
             style: GoogleFonts.lexend(
@@ -178,11 +233,13 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               color: Skin.color(Co.loginInstruction),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: _LoginDimens.gapSection),
           _LoginLabel(icon: Icons.badge_outlined, label: 'Agent ID'),
-          const SizedBox(height: 8),
+          const SizedBox(height: _LoginDimens.gapLabelField),
           TextField(
-            onChanged: (value) => provider.email = value,
+            controller: widget.emailController,
+            focusNode: widget.emailFocusNode,
+            onChanged: (value) => context.read<LoginProvider>().email = value,
             decoration: InputDecoration(
               hintText: 'e.g. AGT-99234',
               hintStyle: GoogleFonts.lexend(
@@ -193,25 +250,30 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               filled: true,
               fillColor: Skin.color(Co.loginInputBg),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(_LoginDimens.inputRadius),
                 borderSide: BorderSide(color: Skin.color(Co.loginInputBorder)),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(_LoginDimens.inputRadius),
                 borderSide: BorderSide(color: Skin.color(Co.loginInputBorder)),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: _LoginDimens.inputPaddingH,
+                vertical: _LoginDimens.inputPaddingV,
+              ),
             ),
             style: GoogleFonts.lexend(fontSize: 16, height: 20 / 16),
           ),
           const SizedBox(height: 20),
           _LoginLabel(icon: Icons.lock_outline, label: 'Password'),
-          const SizedBox(height: 8),
+          const SizedBox(height: _LoginDimens.gapLabelField),
           Stack(
             alignment: Alignment.centerRight,
             children: [
               TextField(
-                onChanged: (value) => provider.password = value,
+                controller: widget.passwordController,
+                focusNode: widget.passwordFocusNode,
+                onChanged: (value) => context.read<LoginProvider>().password = value,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   hintText: '••••••••',
@@ -223,14 +285,19 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
                   filled: true,
                   fillColor: Skin.color(Co.loginInputBg),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(_LoginDimens.inputRadius),
                     borderSide: BorderSide(color: Skin.color(Co.loginInputBorder)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(_LoginDimens.inputRadius),
                     borderSide: BorderSide(color: Skin.color(Co.loginInputBorder)),
                   ),
-                  contentPadding: const EdgeInsets.fromLTRB(16, 13, 48, 13),
+                  contentPadding: const EdgeInsets.fromLTRB(
+                    _LoginDimens.inputPaddingH,
+                    _LoginDimens.inputPaddingV,
+                    48,
+                    _LoginDimens.inputPaddingV,
+                  ),
                 ),
                 style: GoogleFonts.lexend(fontSize: 16, height: 20 / 16),
               ),
@@ -241,7 +308,7 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
                 child: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    size: 22,
+                    size: _LoginDimens.passwordIconSize,
                     color: Skin.color(Co.loginIconMuted),
                   ),
                   onPressed: () {
@@ -252,7 +319,7 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: _LoginDimens.gapAfterForgot),
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
@@ -269,21 +336,21 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               ),
             ),
           ),
-          if (provider.errorMessage != null) ...[
-            const SizedBox(height: 8),
+          if (context.read<LoginProvider>().errorMessage != null) ...[
+            const SizedBox(height: _LoginDimens.gapLabelField),
             Text(
-              provider.errorMessage!,
+              context.read<LoginProvider>().errorMessage!,
               style: GoogleFonts.lexend(
                 fontSize: 14,
                 color: Skin.color(Co.error),
               ),
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: _LoginDimens.gapBeforeButton),
           Container(
-            height: 56,
+            height: _LoginDimens.buttonHeight,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(_LoginDimens.buttonRadius),
               boxShadow: [
                 BoxShadow(
                   color: Skin.color(Co.loginButtonShadow),
@@ -300,20 +367,18 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               ],
             ),
             child: ElevatedButton(
-              onPressed: provider.isLoading
-                  ? null
-                  : () => provider.signIn(),
+              onPressed: context.read<LoginProvider>().isLoading ? null : widget.onSignIn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Skin.color(Co.primary),
                 foregroundColor: Skin.color(Co.onPrimary),
-                disabledBackgroundColor: Skin.color(Co.primary).withOpacity(0.6),
+                disabledBackgroundColor: Skin.color(Co.primary).withValues(alpha: 0.6),
                 elevation: 0,
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(_LoginDimens.buttonRadius),
                 ),
               ),
-              child: provider.isLoading
+              child: context.read<LoginProvider>().isLoading
                   ? const SizedBox(
                       width: 24,
                       height: 24,
@@ -382,7 +447,7 @@ class _LoginContactSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(_LoginDimens.gapSection),
       decoration: BoxDecoration(
         color: Skin.color(Co.loginInputBg),
         border: Border(
@@ -404,7 +469,11 @@ class _LoginContactSection extends StatelessWidget {
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: () {},
-            icon: Icon(Icons.person_outline, size: 12, color: Skin.color(Co.loginLabel)),
+            icon: Icon(
+              Icons.person_outline,
+              size: 12,
+              color: Skin.color(Co.loginLabel),
+            ),
             label: Text(
               'Contact Admin for Access',
               style: GoogleFonts.lexend(
@@ -427,7 +496,7 @@ class _LoginFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 32),
+      padding: const EdgeInsets.only(top: _LoginDimens.footerTop),
       child: Column(
         children: [
           Opacity(
@@ -441,7 +510,7 @@ class _LoginFooter extends StatelessWidget {
                     color: Skin.color(Co.loginFooterDivider),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: _LoginDimens.footerDividerSpace),
                 Text(
                   'WISECARE SYSTEMS',
                   style: GoogleFonts.lexend(
@@ -452,7 +521,7 @@ class _LoginFooter extends StatelessWidget {
                     color: Skin.color(Co.loginFooterBrand),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: _LoginDimens.footerDividerSpace),
                 Expanded(
                   child: Container(
                     height: 1,
@@ -462,7 +531,7 @@ class _LoginFooter extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: _LoginDimens.footerDisclaimerTop),
           Text(
             'By logging in, you agree to the WiseCare Data Security Policy. Authorized personnel access only. All activities are monitored for compliance.',
             textAlign: TextAlign.center,
