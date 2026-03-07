@@ -8,4 +8,5 @@ class StorageKeys {
   static const String themeBox = 'theme_box';
   static const String userBox = 'user_box';
   static const String settingsBox = 'settings_box';
+  static const String cachedProfile = 'cached_profile';
 }
