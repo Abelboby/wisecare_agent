@@ -1,5 +1,5 @@
 name: wisecare_agent
-description: "WiseCare Agent app."
+description: "WiseAgent app."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -28,6 +28,9 @@ dependencies:
 
   # Web: device frame preview (iPhone 15 Pro)
   device_frame: ^1.4.0
+
+  # Typography (Poppins, Lexend)
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
