@@ -8,7 +8,7 @@ class _TasksCompletedTodaySection extends StatelessWidget {
     return Consumer<HomeProvider>(
       builder: (context, provider, _) {
         final stats = provider.completedToday ??
-            const CompletedTodayModel(tasksCount: 5, distanceKm: 12);
+            const CompletedTodayModel(tasksCount: 0, distanceKm: 0);
         return Container(
           padding: const EdgeInsets.all(_TasksTabDimens.statsSectionPadding),
           decoration: BoxDecoration(
