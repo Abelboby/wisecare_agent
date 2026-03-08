@@ -87,7 +87,7 @@ class _StatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(_TasksTabDimens.buttonRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Skin.color(Co.splashBadgeShadow),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
