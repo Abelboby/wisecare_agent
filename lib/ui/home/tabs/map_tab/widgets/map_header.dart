@@ -36,8 +36,7 @@ class _MapHeader extends StatelessWidget {
                 style: GoogleFonts.lexend(
                   fontSize: _MapTabDimens.headerActiveDutyFontSize,
                   fontWeight: FontWeight.w700,
-                  height: _MapTabDimens.headerActiveDutyHeight /
-                      _MapTabDimens.headerActiveDutyFontSize,
+                  height: _MapTabDimens.headerActiveDutyHeight / _MapTabDimens.headerActiveDutyFontSize,
                   letterSpacing: 1,
                   color: Skin.color(Co.primary),
                 ),
@@ -48,8 +47,7 @@ class _MapHeader extends StatelessWidget {
                 style: GoogleFonts.lexend(
                   fontSize: _MapTabDimens.headerTitleFontSize,
                   fontWeight: FontWeight.w700,
-                  height: _MapTabDimens.headerTitleHeight /
-                      _MapTabDimens.headerTitleFontSize,
+                  height: _MapTabDimens.headerTitleHeight / _MapTabDimens.headerTitleFontSize,
                   color: Skin.color(Co.mapAgentViewTitle),
                 ),
               ),
