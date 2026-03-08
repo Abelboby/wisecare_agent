@@ -8,6 +8,7 @@ class _LoginCard extends StatelessWidget {
     required this.passwordFocusNode,
     required this.onSignIn,
     required this.onDemoLogin,
+    required this.isDemoTyping,
   });
 
   final TextEditingController emailController;
@@ -16,6 +17,7 @@ class _LoginCard extends StatelessWidget {
   final FocusNode passwordFocusNode;
   final VoidCallback onSignIn;
   final VoidCallback onDemoLogin;
+  final bool isDemoTyping;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,7 @@ class _LoginCard extends StatelessWidget {
             passwordFocusNode: passwordFocusNode,
             onSignIn: onSignIn,
             onDemoLogin: onDemoLogin,
+            isDemoTyping: isDemoTyping,
           ),
           const _LoginContactSection(),
         ],
@@ -126,6 +129,7 @@ class _LoginFormSection extends StatefulWidget {
     required this.passwordFocusNode,
     required this.onSignIn,
     required this.onDemoLogin,
+    required this.isDemoTyping,
   });
 
   final TextEditingController emailController;
@@ -134,6 +138,7 @@ class _LoginFormSection extends StatefulWidget {
   final FocusNode passwordFocusNode;
   final VoidCallback onSignIn;
   final VoidCallback onDemoLogin;
+  final bool isDemoTyping;
 
   @override
   State<_LoginFormSection> createState() => _LoginFormSectionState();
@@ -336,7 +341,7 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: context.read<LoginProvider>().isLoading ? null : widget.onDemoLogin,
+            onPressed: (context.read<LoginProvider>().isLoading || widget.isDemoTyping) ? null : widget.onDemoLogin,
             style: OutlinedButton.styleFrom(
               foregroundColor: Skin.color(Co.primary),
               side: BorderSide(color: Skin.color(Co.primary)),
