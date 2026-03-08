@@ -15,6 +15,9 @@ abstract final class _MapTabDimens {
   static const double headerTitleHeight = 32;
 
   // Map area (Figma: top 105px, bottom 96px)
+  /// Vertical offset (logical pixels) applied when centering on user location
+  /// so the marker stays above the bottom sheet. Negative dy = user appears higher.
+  static const double mapCenterBottomOffsetPx = 200;
   static const double mapOverlayButtonSize = 38;
   static const double mapOverlayGap = 8;
   static const double mapOverlayRight = 16;
