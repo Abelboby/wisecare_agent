@@ -206,19 +206,19 @@ class _MapOverlayButton extends StatelessWidget {
           width: _MapTabDimens.mapOverlayButtonSize,
           height: _MapTabDimens.mapOverlayButtonSize,
           decoration: BoxDecoration(
-            color: Skin.color(Co.mapOverlayButtonBg),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(_MapTabDimens.mapOverlayButtonRadius),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Color(0x1A000000),
                 blurRadius: 15,
-                offset: const Offset(0, 10),
+                offset: Offset(0, 10),
                 spreadRadius: -3,
               ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Color(0x0A000000),
                 blurRadius: 6,
-                offset: const Offset(0, 4),
+                offset: Offset(0, 4),
                 spreadRadius: -4,
               ),
             ],
