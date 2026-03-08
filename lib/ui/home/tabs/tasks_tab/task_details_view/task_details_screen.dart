@@ -24,6 +24,15 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final notes = widget.task.agentNotes;
+    if (notes != null && notes.isNotEmpty) {
+      _notesController.text = notes;
+    }
+  }
+
+  @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
@@ -36,10 +45,17 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   String get _scheduledSubtitle {
-    if (widget.task.scheduledAt != null && widget.task.scheduledAt!.isNotEmpty) {
-      return 'Scheduled for Today, ${widget.task.scheduledAt}';
+    final parts = <String>[];
+    final distance = widget.task.distanceAway;
+    if (distance != null && distance.isNotEmpty) {
+      parts.add('$distance away');
     }
-    return 'Scheduled for Today';
+    if (widget.task.scheduledAt != null && widget.task.scheduledAt!.isNotEmpty) {
+      parts.add('Scheduled for Today, ${widget.task.scheduledAt}');
+    } else {
+      parts.add('Scheduled for Today');
+    }
+    return parts.join(' • ');
   }
 
   @override
@@ -138,6 +154,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   Widget _buildRequestSection() {
+    final requestType = widget.task.requestType;
+    final subtitleParts = widget.task.subtitle?.split(' • ');
+    final categoryLabel = requestType ??
+        (subtitleParts != null && subtitleParts.isNotEmpty ? subtitleParts.first : null);
+    final hasTypeBadge = categoryLabel != null && categoryLabel.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -148,22 +169,45 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Skin.color(Co.primary).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(9999),
-            ),
-            child: Text(
-              _statusLabel,
-              style: GoogleFonts.lexend(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                height: 16 / 12,
-                letterSpacing: 0.6,
-                color: Skin.color(Co.primary),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Skin.color(Co.primary).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: Text(
+                  _statusLabel,
+                  style: GoogleFonts.lexend(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    height: 16 / 12,
+                    letterSpacing: 0.6,
+                    color: Skin.color(Co.primary),
+                  ),
+                ),
               ),
-            ),
+              if (hasTypeBadge) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Skin.color(Co.loginInputBg),
+                    borderRadius: BorderRadius.circular(9999),
+                  ),
+                  child: Text(
+                    categoryLabel,
+                    style: GoogleFonts.lexend(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 16 / 12,
+                      color: Skin.color(Co.loginSubtitle),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 20),
           Text(
@@ -185,6 +229,58 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               color: Skin.color(Co.loginInstruction),
             ),
           ),
+          if (widget.task.rawMessage != null &&
+              widget.task.rawMessage!.isNotEmpty &&
+              widget.task.rawMessage != widget.task.description) ...[
+            const SizedBox(height: 12),
+            Text(
+              'Original message',
+              style: GoogleFonts.lexend(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 16 / 12,
+                color: Skin.color(Co.loginIconMuted),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.task.rawMessage!,
+              style: GoogleFonts.lexend(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 23 / 14,
+                color: Skin.color(Co.loginInstruction),
+              ),
+            ),
+          ],
+          if (widget.task.productImageUrl != null &&
+              widget.task.productImageUrl!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                widget.task.productImageUrl!,
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
+          if (widget.task.mapImageUrl != null &&
+              widget.task.mapImageUrl!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                widget.task.mapImageUrl!,
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -362,6 +458,29 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               ],
             ),
           ),
+          if (widget.task.assignedAgentName != null &&
+              widget.task.assignedAgentName!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.person_outline_rounded,
+                  size: 16,
+                  color: Skin.color(Co.loginIconMuted),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Assigned to ${widget.task.assignedAgentName}',
+                  style: GoogleFonts.lexend(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 18 / 13,
+                    color: Skin.color(Co.loginSubtitle),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -573,8 +692,19 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   Future<void> _openMap(BuildContext context) async {
-    final address = widget.task.location ?? widget.task.elderlyCity ?? '';
-    if (address.isEmpty) {
+    final lat = widget.task.elderlyLatitude;
+    final lng = widget.task.elderlyLongitude;
+    final address = widget.task.location ?? widget.task.elderlyAddress ?? widget.task.elderlyCity ?? '';
+    Uri uri;
+    if (lat != null && lng != null) {
+      uri = Uri.parse(
+        'https://www.google.com/maps?q=$lat,$lng',
+      );
+    } else if (address.isNotEmpty) {
+      uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
+      );
+    } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Address not available')),
@@ -582,9 +712,6 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       }
       return;
     }
-    final uri = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
-    );
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
