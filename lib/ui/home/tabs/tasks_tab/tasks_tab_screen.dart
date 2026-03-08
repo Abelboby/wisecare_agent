@@ -52,6 +52,10 @@ class _TasksTabScreenState extends State<TasksTabScreen> {
     super.dispose();
   }
 
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
   List<AgentTaskModel> _filterTasks(List<AgentTaskModel> tasks) {
     if (_selectedTabIndex != 0) return tasks;
     var list = tasks;
@@ -85,7 +89,10 @@ class _TasksTabScreenState extends State<TasksTabScreen> {
             const _TasksHeader(),
             _TasksTabBar(
               selectedIndex: _selectedTabIndex,
-              onTap: (index) => setState(() => _selectedTabIndex = index),
+              onTap: (index) {
+                _selectedTabIndex = index;
+                _refresh();
+              },
             ),
             Consumer<HomeProvider>(
               builder: (context, homeProvider, _) {
@@ -142,9 +149,15 @@ class _TasksTabScreenState extends State<TasksTabScreen> {
             if (_selectedTabIndex == 0)
               _TasksSearchFilter(
                 searchQuery: _searchQuery,
-                onSearchChanged: (v) => setState(() => _searchQuery = v),
+                onSearchChanged: (v) {
+                  _searchQuery = v;
+                  _refresh();
+                },
                 selectedFilter: _statusFilter,
-                onFilterChanged: (v) => setState(() => _statusFilter = v),
+                onFilterChanged: (v) {
+                  _statusFilter = v;
+                  _refresh();
+                },
               ),
             Expanded(
               child: Consumer<HomeProvider>(
