@@ -56,7 +56,11 @@ class _MapOverlayButtons extends StatelessWidget {
       if (!context.mounted) return;
       final userLatLng = LatLng(position.latitude, position.longitude);
       onUserLocationFound?.call(userLatLng);
-      mapController.move(userLatLng, _kDefaultZoom);
+      mapController.move(
+        userLatLng,
+        _kDefaultZoom,
+        offset: Offset(0, -_MapTabDimens.mapCenterBottomOffsetPx),
+      );
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
