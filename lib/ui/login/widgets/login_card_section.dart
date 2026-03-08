@@ -7,6 +7,7 @@ class _LoginCard extends StatelessWidget {
     required this.emailFocusNode,
     required this.passwordFocusNode,
     required this.onSignIn,
+    required this.onDemoLogin,
   });
 
   final TextEditingController emailController;
@@ -14,6 +15,7 @@ class _LoginCard extends StatelessWidget {
   final FocusNode emailFocusNode;
   final FocusNode passwordFocusNode;
   final VoidCallback onSignIn;
+  final VoidCallback onDemoLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class _LoginCard extends StatelessWidget {
             emailFocusNode: emailFocusNode,
             passwordFocusNode: passwordFocusNode,
             onSignIn: onSignIn,
+            onDemoLogin: onDemoLogin,
           ),
           const _LoginContactSection(),
         ],
@@ -68,16 +71,22 @@ class _LoginCardHeader extends StatelessWidget {
         children: [
           Container(
             width: _LoginDimens.headerIconSize,
-            height: 54,
+            height: _LoginDimens.headerIconSize,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Skin.color(Co.loginLogoIconBg),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.shield,
-              size: _LoginDimens.headerIconInner,
-              color: Skin.color(Co.primary),
+            child: ClipOval(
+              child: SizedBox(
+                width: _LoginDimens.headerIconInner,
+                height: _LoginDimens.headerIconInner,
+                child: Assets.icons.appIconPng.image(
+                  width: _LoginDimens.headerIconInner,
+                  height: _LoginDimens.headerIconInner,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: _LoginDimens.gapAfterHeader),
@@ -116,6 +125,7 @@ class _LoginFormSection extends StatefulWidget {
     required this.emailFocusNode,
     required this.passwordFocusNode,
     required this.onSignIn,
+    required this.onDemoLogin,
   });
 
   final TextEditingController emailController;
@@ -123,6 +133,7 @@ class _LoginFormSection extends StatefulWidget {
   final FocusNode emailFocusNode;
   final FocusNode passwordFocusNode;
   final VoidCallback onSignIn;
+  final VoidCallback onDemoLogin;
 
   @override
   State<_LoginFormSection> createState() => _LoginFormSectionState();
@@ -165,14 +176,14 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
             ),
           ),
           const SizedBox(height: _LoginDimens.gapSection),
-          _LoginLabel(icon: Icons.badge_outlined, label: 'Agent ID'),
+          _LoginLabel(icon: Icons.email_outlined, label: 'Agent Mail ID'),
           const SizedBox(height: _LoginDimens.gapLabelField),
           TextField(
             controller: widget.emailController,
             focusNode: widget.emailFocusNode,
             onChanged: (value) => context.read<LoginProvider>().email = value,
             decoration: InputDecoration(
-              hintText: 'e.g. AGT-99234',
+              hintText: 'e.g. agent@wisecare.com',
               hintStyle: GoogleFonts.lexend(
                 fontSize: 16,
                 height: 20 / 16,
@@ -250,23 +261,6 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
               ),
             ],
           ),
-          const SizedBox(height: _LoginDimens.gapAfterForgot),
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () {},
-              child: Text(
-                'Forgot Credentials?',
-                style: GoogleFonts.lexend(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  height: 20 / 14,
-                  color: Skin.color(Co.primary),
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
-          ),
           if (context.read<LoginProvider>().errorMessage != null) ...[
             const SizedBox(height: _LoginDimens.gapLabelField),
             Text(
@@ -338,6 +332,26 @@ class _LoginFormSectionState extends State<_LoginFormSection> {
                         ),
                       ],
                     ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: context.read<LoginProvider>().isLoading ? null : widget.onDemoLogin,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Skin.color(Co.primary),
+              side: BorderSide(color: Skin.color(Co.primary)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(_LoginDimens.buttonRadius),
+              ),
+            ),
+            icon: const Icon(Icons.flash_on_outlined, size: 18),
+            label: Text(
+              'Demo login',
+              style: GoogleFonts.lexend(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                height: 20 / 14,
+              ),
             ),
           ),
         ],
