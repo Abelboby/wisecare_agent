@@ -56,90 +56,108 @@ class _TasksHeader extends StatelessWidget {
                     },
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Consumer<ProfileProvider>(
-                        builder: (context, profileProvider, _) {
-                          final name = profileProvider.profile?.name ?? 'Agent';
-                          return Text(
-                            name,
-                            style: GoogleFonts.lexend(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              height: 22 / 18,
-                              color: Skin.color(Co.loginHeading),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: _TasksTabDimens.headerNameStatusGap),
-                      Row(
+                  Consumer<HomeProvider>(
+                    builder: (context, homeProvider, _) {
+                      final isOnline = homeProvider.isOnline;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: _TasksTabDimens.headerStatusDot,
-                            height: _TasksTabDimens.headerStatusDot,
-                            decoration: BoxDecoration(
-                              color: Skin.color(Co.homeStatusOnline),
-                              shape: BoxShape.circle,
-                            ),
+                          Consumer<ProfileProvider>(
+                            builder: (context, profileProvider, _) {
+                              final name = profileProvider.profile?.name ?? 'Agent';
+                              return Text(
+                                name,
+                                style: GoogleFonts.lexend(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  height: 22 / 18,
+                                  color: Skin.color(Co.loginHeading),
+                                ),
+                              );
+                            },
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'ONLINE',
-                            style: GoogleFonts.lexend(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 16 / 12,
-                              letterSpacing: 0.6,
-                              color: Skin.color(Co.loginSubtitle),
-                            ),
+                          const SizedBox(height: _TasksTabDimens.headerNameStatusGap),
+                          Row(
+                            children: [
+                              Container(
+                                width: _TasksTabDimens.headerStatusDot,
+                                height: _TasksTabDimens.headerStatusDot,
+                                decoration: BoxDecoration(
+                                  color: isOnline
+                                      ? Skin.color(Co.homeStatusOnline)
+                                      : Skin.color(Co.error),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isOnline ? 'ONLINE' : 'OFFLINE',
+                                style: GoogleFonts.lexend(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  height: 16 / 12,
+                                  letterSpacing: 0.6,
+                                  color: Skin.color(Co.loginSubtitle),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ],
               ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    context.read<HomeProvider>().setOffline();
-                  },
-                  borderRadius: BorderRadius.circular(9999),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Skin.color(Co.primary).withValues(alpha: 0.1),
+              Consumer<HomeProvider>(
+                builder: (context, homeProvider, _) {
+                  final isOnline = homeProvider.isOnline;
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (isOnline) {
+                          context.read<HomeProvider>().setOffline();
+                        } else {
+                          context.read<HomeProvider>().setOnline();
+                        }
+                      },
                       borderRadius: BorderRadius.circular(9999),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.refresh_rounded,
-                          size: 18,
-                          color: Skin.color(Co.primary),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Go Offline',
-                          style: GoogleFonts.lexend(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            height: 20 / 14,
-                            color: Skin.color(Co.primary),
-                          ),
+                        decoration: BoxDecoration(
+                          color: Skin.color(Co.primary).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(9999),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isOnline
+                                  ? Icons.wifi_off_rounded
+                                  : Icons.wifi_rounded,
+                              size: 18,
+                              color: Skin.color(Co.primary),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              isOnline ? 'Go Offline' : 'Go Online',
+                              style: GoogleFonts.lexend(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                color: Skin.color(Co.primary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
