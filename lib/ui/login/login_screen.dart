@@ -27,6 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
+  bool _isDemoTyping = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -34,6 +36,45 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleDemoLogin(BuildContext context) async {
+    if (_isDemoTyping) return;
+    setState(() => _isDemoTyping = true);
+    final provider = context.read<LoginProvider>();
+    final email = _LoginDemoCredentials.email;
+    final password = _LoginDemoCredentials.password;
+    final delay = Duration(milliseconds: _LoginDemoCredentials.typingDelayMs);
+
+    try {
+      _emailController.clear();
+      _passwordController.clear();
+      provider.email = '';
+      provider.password = '';
+
+      for (var i = 0; i <= email.length; i++) {
+        if (!mounted) return;
+        _emailController.text = email.substring(0, i);
+        _emailController.selection = TextSelection.collapsed(offset: i);
+        provider.email = _emailController.text.trim();
+        if (i < email.length) await Future.delayed(delay);
+      }
+
+      for (var i = 0; i <= password.length; i++) {
+        if (!mounted) return;
+        _passwordController.text = password.substring(0, i);
+        _passwordController.selection = TextSelection.collapsed(offset: i);
+        provider.password = _passwordController.text;
+        if (i < password.length) await Future.delayed(delay);
+      }
+
+      if (!mounted) return;
+      provider.signIn();
+    } finally {
+      if (mounted && _isDemoTyping) {
+        setState(() => _isDemoTyping = false);
+      }
+    }
   }
 
   @override
@@ -58,6 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         passwordFocusNode: _passwordFocusNode,
                         onSignIn: () => _handleSignIn(context),
                         onDemoLogin: () => _handleDemoLogin(context),
+                        isDemoTyping: _isDemoTyping,
                       ),
                       // const SizedBox(height: 32),
                       const _LoginFooter(),
