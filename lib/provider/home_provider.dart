@@ -6,7 +6,7 @@ import 'package:wisecare_agent/models/home/completed_today_model.dart';
 import 'package:wisecare_agent/repositories/home_repository.dart';
 
 /// Home screen state: tab, online status, tasks, completed stats.
-/// Uses repository only.
+/// Uses repository only. One API call loads all requests; split into active vs completed.
 class HomeProvider extends ChangeNotifier {
   HomeProvider({HomeRepository? repository})
       : _repository = repository ?? HomeRepository();
@@ -21,6 +21,9 @@ class HomeProvider extends ChangeNotifier {
 
   List<AgentTaskModel> _activeTasks = [];
   List<AgentTaskModel> get activeTasks => List.unmodifiable(_activeTasks);
+
+  List<AgentTaskModel> _completedTasks = [];
+  List<AgentTaskModel> get completedTasks => List.unmodifiable(_completedTasks);
 
   CompletedTodayModel? _completedToday;
   CompletedTodayModel? get completedToday => _completedToday;
@@ -55,13 +58,44 @@ class HomeProvider extends ChangeNotifier {
     return high > 0 ? _activeTasks.length : 0;
   }
 
+  static const List<String> _activeStatuses = [
+    'ASSIGNED',
+    'ACCEPTED',
+    'IN_PROGRESS',
+  ];
+
+  static void _sortActiveTasks(List<AgentTaskModel> tasks) {
+    tasks.sort((a, b) {
+      final urgentA = a.priority == AgentTaskPriority.high ? 0 : 1;
+      final urgentB = b.priority == AgentTaskPriority.high ? 0 : 1;
+      if (urgentA != urgentB) return urgentA.compareTo(urgentB);
+      return (a.scheduledAt ?? '').compareTo(b.scheduledAt ?? '');
+    });
+  }
+
+  static void _sortCompletedTasks(List<AgentTaskModel> tasks) {
+    tasks.sort((a, b) => b.id.compareTo(a.id));
+  }
+
   Future<void> loadTasks() async {
     if (_isTasksLoading) return;
     _isTasksLoading = true;
     _tasksError = null;
     notifyListeners();
     try {
-      _activeTasks = await _repository.getActiveTasks();
+      final all = await _repository.getAllTasks();
+      _activeTasks = all
+          .where((t) =>
+              t.status != null &&
+              _activeStatuses.contains(t.status!.toUpperCase()))
+          .toList();
+      _sortActiveTasks(_activeTasks);
+      _completedTasks = all
+          .where((t) =>
+              t.status != null &&
+              t.status!.toUpperCase() == 'COMPLETED')
+          .toList();
+      _sortCompletedTasks(_completedTasks);
       _completedToday = await _repository.getCompletedTodayStats();
       _tasksError = null;
     } catch (e) {
