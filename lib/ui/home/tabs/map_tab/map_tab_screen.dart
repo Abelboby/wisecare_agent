@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +13,8 @@ import 'package:wisecare_agent/enums/app_enums.dart';
 import 'package:wisecare_agent/models/home/agent_task_model.dart';
 import 'package:wisecare_agent/provider/home_provider.dart';
 import 'package:wisecare_agent/provider/profile_provider.dart';
+import 'package:wisecare_agent/services/map_launcher_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wisecare_agent/utils/theme/colors/app_color.dart';
 import 'package:wisecare_agent/utils/theme/theme_manager.dart';
 
@@ -142,7 +145,10 @@ class _MapTabScreenState extends State<MapTabScreen> {
     });
   }
 
-  List<Marker> _buildMarkersWithUserLocation(BuildContext context) {
+  List<Marker> _buildMarkersWithUserLocation(
+    BuildContext context,
+    List<AgentTaskModel> activeTasks,
+  ) {
     final list = List<Marker>.from(_markers);
     if (_userLocation != null) {
       final photoUrl = context.watch<ProfileProvider>().profile?.profilePhotoUrl;
@@ -155,62 +161,103 @@ class _MapTabScreenState extends State<MapTabScreen> {
         ),
       );
     }
+    final taskWithCoords = activeTasks.where((t) => t.elderlyLatitude != null && t.elderlyLongitude != null).toList();
+    for (var i = 0; i < taskWithCoords.length; i++) {
+      final task = taskWithCoords[i];
+      final point = LatLng(task.elderlyLatitude!, task.elderlyLongitude!);
+      list.add(
+        Marker(
+          point: point,
+          width: 80,
+          height: 55,
+          child: _TaskMarker(
+            label: task.title,
+            isPrimary: i == 0,
+          ),
+        ),
+      );
+    }
     return list;
   }
 
   @override
   Widget build(BuildContext context) {
+    final activeTasks = context.watch<HomeProvider>().activeTasks;
     return Scaffold(
-      backgroundColor: Skin.color(Co.mapAreaBg),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _MapHeader(),
-            Expanded(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned.fill(
-                    child: FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        initialCenter: _kDefaultMapCenter,
-                        initialZoom: _kDefaultZoom,
-                        minZoom: _kMinZoom,
-                        maxZoom: _kMaxZoom,
-                        onMapReady: () {
-                          _mapControllerReady = true;
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            _tryApplyInitialCamera();
-                          });
-                        },
-                      ),
-                      children: [
-                        _tileLayerFor(_mapLayer),
-                        MarkerLayer(markers: _buildMarkersWithUserLocation(context)),
-                      ],
-                    ),
-                  ),
-                  _MapOverlayButtons(
-                    mapController: _mapController,
-                    selectedLayer: _mapLayer,
-                    onUserLocationFound: (latLng) {
-                      _userLocation = latLng;
-                      _refresh();
-                    },
-                    onLayerSelected: (layer) {
-                      _mapLayer = layer;
-                      _refresh();
-                    },
-                  ),
-                  const Positioned.fill(
-                    child: _MapBottomSheet(),
-                  ),
-                ],
-              ),
+      backgroundColor: Skin.color(Co.warmBackground),
+      body: Container(
+        decoration: BoxDecoration(
+          color: Skin.color(Co.warmBackground),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x40000000),
+              blurRadius: 50,
+              offset: Offset(0, 25),
+              spreadRadius: -12,
             ),
           ],
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _MapHeader(),
+              Expanded(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned.fill(
+                      child: ColoredBox(
+                        color: const Color(0xFFE2E8F0),
+                        child: FlutterMap(
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: _kDefaultMapCenter,
+                            initialZoom: _kDefaultZoom,
+                            minZoom: _kMinZoom,
+                            maxZoom: _kMaxZoom,
+                            onMapReady: () {
+                              _mapControllerReady = true;
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _tryApplyInitialCamera();
+                              });
+                            },
+                          ),
+                          children: [
+                            _tileLayerFor(_mapLayer),
+                            MarkerLayer(
+                              markers: _buildMarkersWithUserLocation(
+                                context,
+                                activeTasks,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _MapOverlayButtons(
+                      mapController: _mapController,
+                      selectedLayer: _mapLayer,
+                      onUserLocationFound: (latLng) {
+                        _userLocation = latLng;
+                        _refresh();
+                      },
+                      onLayerSelected: (layer) {
+                        _mapLayer = layer;
+                        _refresh();
+                      },
+                    ),
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: _MapBottomSheet(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -273,6 +320,83 @@ class _UserLocationPinPlaceholder extends StatelessWidget {
       color: blue,
       alignment: Alignment.center,
       child: const Icon(Icons.person_rounded, size: 22, color: Colors.white),
+    );
+  }
+}
+
+/// Task marker on map (Figma: Food Marker – yellow circle, white border, label).
+class _TaskMarker extends StatelessWidget {
+  const _TaskMarker({required this.label, this.isPrimary = true});
+
+  final String label;
+  final bool isPrimary;
+
+  @override
+  Widget build(BuildContext context) {
+    final markerColor = isPrimary ? Skin.color(Co.mapMarkerFood) : Skin.color(Co.mapMarkerPharmacy);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: markerColor,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 15,
+                offset: Offset(0, 10),
+                spreadRadius: -3,
+              ),
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 6,
+                offset: Offset(0, 4),
+                spreadRadius: -4,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.restaurant_rounded,
+            size: 12,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 3,
+                offset: Offset(0, 1),
+              ),
+              BoxShadow(
+                color: Color(0x19000000),
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.lexend(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              height: 15 / 10,
+              color: Skin.color(Co.mapAgentViewTitle),
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
     );
   }
 }
