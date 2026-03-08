@@ -31,6 +31,19 @@ class AgentTaskModel {
     this.elderlyPhone,
     this.elderlyCity,
     this.elderlyAddress,
+    this.elderlyUserId,
+    this.elderlyLatitude,
+    this.elderlyLongitude,
+    this.requestType,
+    this.rawMessage,
+    this.assignedAgentId,
+    this.assignedAgentName,
+    this.assignedAt,
+    this.agentNotes,
+    this.createdAt,
+    this.updatedAt,
+    this.completedAt,
+    this.sessionId,
   });
 
   final String id;
@@ -56,18 +69,45 @@ class AgentTaskModel {
   final String? elderlyCity;
   /// Full address from API (elderlyAddress).
   final String? elderlyAddress;
+  /// Elderly user id from API (elderlyUserId).
+  final String? elderlyUserId;
+  /// Elderly location latitude from API (elderlyLatitude).
+  final double? elderlyLatitude;
+  /// Elderly location longitude from API (elderlyLongitude).
+  final double? elderlyLongitude;
+  /// Request type from API (e.g. DELIVERY) (requestType).
+  final String? requestType;
+  /// Raw message from elderly (rawMessage).
+  final String? rawMessage;
+  /// Assigned agent id from API (assignedAgentId).
+  final String? assignedAgentId;
+  /// Assigned agent name from API (assignedAgentName).
+  final String? assignedAgentName;
+  /// Assigned at ISO timestamp from API (assignedAt).
+  final String? assignedAt;
+  /// Agent notes from API (agentNotes).
+  final String? agentNotes;
+  /// Created at ISO timestamp from API (createdAt).
+  final String? createdAt;
+  /// Updated at ISO timestamp from API (updatedAt).
+  final String? updatedAt;
+  /// Completed at ISO timestamp from API (completedAt).
+  final String? completedAt;
+  /// Session id from API (sessionId).
+  final String? sessionId;
 
   factory AgentTaskModel.fromJson(Map<String, dynamic> json) {
     final priorityStr = json['priority'] as String? ?? 'medium';
-    final typeStr = json['type'] as String?;
+    final typeStr = json['type'] as String? ?? json['category'] as String?;
+    final id = json['id'] as String? ?? json['requestId'] as String? ?? '';
     return AgentTaskModel(
-      id: json['id'] as String? ?? '',
+      id: id,
       priority: priorityStr.toUpperCase() == 'HIGH'
           ? AgentTaskPriority.high
           : AgentTaskPriority.medium,
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String?,
-      location: json['location'] as String?,
+      location: json['location'] as String? ?? json['elderlyAddress'] as String?,
       distanceAway: json['distanceAway'] as String?,
       type: _taskTypeFromString(typeStr),
       scheduledAt: json['scheduledAt'] as String?,
@@ -75,25 +115,36 @@ class AgentTaskModel {
       mapImageUrl: json['mapImageUrl'] as String?,
       productImageUrl: json['productImageUrl'] as String?,
       status: json['status'] as String?,
-      customerName: json['customerName'] as String?,
+      customerName: json['customerName'] as String? ?? json['elderlyName'] as String?,
       description: json['description'] as String?,
       elderlyPhone: json['elderlyPhone'] as String?,
       elderlyCity: json['elderlyCity'] as String?,
       elderlyAddress: json['elderlyAddress'] as String?,
+      elderlyUserId: json['elderlyUserId'] as String?,
+      elderlyLatitude: (json['elderlyLatitude'] as num?)?.toDouble(),
+      elderlyLongitude: (json['elderlyLongitude'] as num?)?.toDouble(),
+      requestType: json['requestType'] as String?,
+      rawMessage: json['rawMessage'] as String?,
+      assignedAgentId: json['assignedAgentId'] as String?,
+      assignedAgentName: json['assignedAgentName'] as String?,
+      assignedAt: json['assignedAt'] as String?,
+      agentNotes: json['agentNotes'] as String?,
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      completedAt: json['completedAt'] as String?,
+      sessionId: json['sessionId'] as String?,
     );
   }
 
   /// Maps backend service-request object to [AgentTaskModel].
   /// See service-requests-api-integration.md for API shape.
-  /// Optional fields (distanceAway, scheduledAt, itemCount, mapImageUrl, productImageUrl)
-  /// are read when present; see docs/tasks-api-gaps.md.
   factory AgentTaskModel.fromServiceRequest(Map<String, dynamic> json) {
     final category = json['category'] as String?;
     final priorityStr = json['priority'] as String? ?? 'NORMAL';
     final statusStr = json['status'] as String? ?? '';
     final title = json['title'] as String? ?? json['description'] as String? ?? '';
     final location = json['elderlyAddress'] as String? ?? json['elderlyCity'] as String?;
-    final assignedAt = json['assignedAt'] as String?;
+    final assignedAtRaw = json['assignedAt'] as String?;
     final subtitle = _subtitleFromCategoryAndStatus(category, statusStr);
     final scheduledAtRaw = json['scheduledAt'] as String?;
     return AgentTaskModel(
@@ -104,7 +155,7 @@ class AgentTaskModel {
       location: location,
       distanceAway: json['distanceAway'] as String?,
       type: _taskTypeFromString(category),
-      scheduledAt: _formatAssignedAt(scheduledAtRaw ?? assignedAt),
+      scheduledAt: _formatAssignedAt(scheduledAtRaw ?? assignedAtRaw),
       itemCount: json['itemCount'] as int?,
       mapImageUrl: json['mapImageUrl'] as String?,
       productImageUrl: json['productImageUrl'] as String?,
@@ -114,6 +165,19 @@ class AgentTaskModel {
       elderlyPhone: json['elderlyPhone'] as String?,
       elderlyCity: json['elderlyCity'] as String?,
       elderlyAddress: json['elderlyAddress'] as String?,
+      elderlyUserId: json['elderlyUserId'] as String?,
+      elderlyLatitude: (json['elderlyLatitude'] as num?)?.toDouble(),
+      elderlyLongitude: (json['elderlyLongitude'] as num?)?.toDouble(),
+      requestType: json['requestType'] as String?,
+      rawMessage: json['rawMessage'] as String?,
+      assignedAgentId: json['assignedAgentId'] as String?,
+      assignedAgentName: json['assignedAgentName'] as String?,
+      assignedAt: assignedAtRaw,
+      agentNotes: json['agentNotes'] as String?,
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      completedAt: json['completedAt'] as String?,
+      sessionId: json['sessionId'] as String?,
     );
   }
 
