@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         passwordFocusNode: _passwordFocusNode,
                         onSignIn: () => _handleSignIn(context),
                       ),
-                      const SizedBox(height: 32),
+                      // const SizedBox(height: 32),
                       const _LoginFooter(),
                     ],
                   ),
