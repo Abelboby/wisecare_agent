@@ -7,4 +7,13 @@ extension _LoginScreenFunctions on _LoginScreenState {
     provider.password = _passwordController.text;
     provider.signIn();
   }
+
+  void _handleDemoLogin(BuildContext context) {
+    _emailController.text = _LoginDemoCredentials.email;
+    _passwordController.text = _LoginDemoCredentials.password;
+    final provider = context.read<LoginProvider>();
+    provider.email = _LoginDemoCredentials.email;
+    provider.password = _LoginDemoCredentials.password;
+    provider.signIn();
+  }
 }
