@@ -7,6 +7,7 @@ class _MapHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: _MapTabDimens.headerHeight,
       width: double.infinity,
       padding: const EdgeInsets.only(
         top: _MapTabDimens.headerPaddingTop,
