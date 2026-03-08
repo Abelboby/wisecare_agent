@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import 'package:wisecare_agent/models/home/agent_task_model.dart';
 import 'package:wisecare_agent/models/home/completed_today_model.dart';
 import 'package:wisecare_agent/network/dio_helper.dart';
@@ -12,7 +14,7 @@ class HomeService {
   ];
 
   /// Fetches service requests and returns only active (ASSIGNED, ACCEPTED, IN_PROGRESS).
-  /// Response shape: { "requests": [...], "count": N }.
+  /// Sorted: URGENT first, then by assignedAt ascending. Response: { "requests": [...], "count": N }.
   static Future<List<AgentTaskModel>> getActiveTasks() async {
     final response = await DioHelper.instance.get<Map<String, dynamic>>(
       Endpoints.serviceRequests,
@@ -30,10 +32,25 @@ class HomeService {
       return s != null && _activeStatuses.contains(s.toUpperCase());
     })
         .toList();
+    _sortActiveRequests(requests);
     return requests
         .map<AgentTaskModel>(AgentTaskModel.fromServiceRequest)
         .where((t) => t.id.isNotEmpty)
         .toList();
+  }
+
+  /// Sort active list: URGENT first, then by assignedAt ascending (per API doc).
+  static void _sortActiveRequests(List<Map<String, dynamic>> requests) {
+    requests.sort((a, b) {
+      final priorityA = (a['priority'] as String? ?? 'NORMAL').toUpperCase();
+      final priorityB = (b['priority'] as String? ?? 'NORMAL').toUpperCase();
+      final urgentA = priorityA == 'URGENT' ? 0 : 1;
+      final urgentB = priorityB == 'URGENT' ? 0 : 1;
+      if (urgentA != urgentB) return urgentA.compareTo(urgentB);
+      final atA = a['assignedAt'] as String? ?? '';
+      final atB = b['assignedAt'] as String? ?? '';
+      return atA.compareTo(atB);
+    });
   }
 
   /// Completed-today: count COMPLETED requests with completedAt today.
@@ -70,7 +87,7 @@ class HomeService {
   }
 
   /// Updates request status (e.g. ACCEPTED, IN_PROGRESS, COMPLETED).
-  /// Body: { "status": string, "notes"?: string }.
+  /// Body: { "status": string, "notes"?: string }. On 403 shows doc message.
   static Future<void> updateRequestStatus(
     String requestId,
     String status, {
@@ -78,9 +95,34 @@ class HomeService {
   }) async {
     final body = <String, dynamic>{'status': status};
     if (notes != null && notes.isNotEmpty) body['notes'] = notes;
-    await DioHelper.instance.patch<dynamic>(
-      Endpoints.serviceRequestStatus(requestId),
-      data: body,
-    );
+    try {
+      await DioHelper.instance.patch<dynamic>(
+        Endpoints.serviceRequestStatus(requestId),
+        data: body,
+      );
+    } on DioException catch (e) {
+      throw Exception(_messageFromStatusUpdateError(e));
+    }
+  }
+
+  static String _messageFromStatusUpdateError(DioException e) {
+    final response = e.response;
+    if (response?.data is Map<String, dynamic>) {
+      final data = response!.data as Map<String, dynamic>;
+      final msg = data['error'] as String? ?? data['message'] as String?;
+      if (msg != null && msg.isNotEmpty) return msg;
+    }
+    if (response?.statusCode == 403) {
+      return 'This request is not assigned to you.';
+    }
+    if (response?.statusCode == 401) return 'Session expired. Please sign in again.';
+    if (response?.statusCode == 404) return 'Request not found.';
+    if (response?.statusCode != null && response!.statusCode! >= 500) {
+      return 'Server error. Please try again later.';
+    }
+    if (response == null || e.type == DioExceptionType.connectionError) {
+      return 'Network error. Please check your connection.';
+    }
+    return e.message ?? 'Something went wrong. Please try again.';
   }
 }
