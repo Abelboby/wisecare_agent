@@ -416,6 +416,16 @@ class Co {
     dark: Color(0x1AFF6933),
     grayscale: Color(0x1AFF6933),
   );
+  static const AppColor mapPullHandle = AppColor(
+    light: Color(0xFFCBD5E1),
+    dark: Color(0xFFCBD5E1),
+    grayscale: Color(0xFFCBD5E1),
+  );
+  static const AppColor mapSheetShadow = AppColor(
+    light: Color(0x1F000000),
+    dark: Color(0x1F000000),
+    grayscale: Color(0x1F000000),
+  );
   static const AppColor mapEmergencyCardBg = AppColor(
     light: Color(0xFFFEF2F2),
     dark: Color(0xFFFEF2F2),
