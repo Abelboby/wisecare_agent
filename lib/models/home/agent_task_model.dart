@@ -25,6 +25,12 @@ class AgentTaskModel {
     this.itemCount,
     this.mapImageUrl,
     this.productImageUrl,
+    this.status,
+    this.customerName,
+    this.description,
+    this.elderlyPhone,
+    this.elderlyCity,
+    this.elderlyAddress,
   });
 
   final String id;
@@ -38,6 +44,18 @@ class AgentTaskModel {
   final int? itemCount;
   final String? mapImageUrl;
   final String? productImageUrl;
+  /// API status: ASSIGNED, ACCEPTED, IN_PROGRESS, COMPLETED, REJECTED.
+  final String? status;
+  /// Elderly/customer name from API (elderlyName).
+  final String? customerName;
+  /// Request details from API (description).
+  final String? description;
+  /// Elderly contact number from API (elderlyPhone).
+  final String? elderlyPhone;
+  /// Elderly city from API (elderlyCity).
+  final String? elderlyCity;
+  /// Full address from API (elderlyAddress).
+  final String? elderlyAddress;
 
   factory AgentTaskModel.fromJson(Map<String, dynamic> json) {
     final priorityStr = json['priority'] as String? ?? 'medium';
@@ -56,6 +74,12 @@ class AgentTaskModel {
       itemCount: json['itemCount'] as int?,
       mapImageUrl: json['mapImageUrl'] as String?,
       productImageUrl: json['productImageUrl'] as String?,
+      status: json['status'] as String?,
+      customerName: json['customerName'] as String?,
+      description: json['description'] as String?,
+      elderlyPhone: json['elderlyPhone'] as String?,
+      elderlyCity: json['elderlyCity'] as String?,
+      elderlyAddress: json['elderlyAddress'] as String?,
     );
   }
 
@@ -84,6 +108,12 @@ class AgentTaskModel {
       itemCount: json['itemCount'] as int?,
       mapImageUrl: json['mapImageUrl'] as String?,
       productImageUrl: json['productImageUrl'] as String?,
+      status: statusStr.isNotEmpty ? statusStr.toUpperCase() : null,
+      customerName: json['elderlyName'] as String?,
+      description: json['description'] as String?,
+      elderlyPhone: json['elderlyPhone'] as String?,
+      elderlyCity: json['elderlyCity'] as String?,
+      elderlyAddress: json['elderlyAddress'] as String?,
     );
   }
 
