@@ -4,8 +4,9 @@ import 'package:wisecare_agent/services/home_service.dart';
 
 /// Home data orchestration. Only this layer talks to HomeService.
 class HomeRepository {
-  Future<List<AgentTaskModel>> getActiveTasks() async {
-    return HomeService.getActiveTasks();
+  /// Fetches all assigned requests in one call. Provider splits into active/completed.
+  Future<List<AgentTaskModel>> getAllTasks() async {
+    return HomeService.getAllTasks();
   }
 
   Future<CompletedTodayModel> getCompletedTodayStats() async {
