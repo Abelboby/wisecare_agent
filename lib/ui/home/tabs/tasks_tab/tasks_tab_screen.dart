@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -30,10 +31,22 @@ class TasksTabScreen extends StatefulWidget {
 }
 
 class _TasksTabScreenState extends State<TasksTabScreen> {
+  Timer? _pollTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadInitialData());
+    _pollTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (!mounted) return;
+      context.read<HomeProvider>().loadTasks();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -45,6 +58,59 @@ class _TasksTabScreenState extends State<TasksTabScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const _TasksHeader(),
+            Consumer<HomeProvider>(
+              builder: (context, homeProvider, _) {
+                if (homeProvider.tasksError == null ||
+                    homeProvider.tasksError!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: _TasksTabDimens.contentPaddingH,
+                    vertical: 8,
+                  ),
+                  child: Material(
+                    color: Skin.color(Co.error).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 20,
+                            color: Skin.color(Co.error),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              homeProvider.tasksError!,
+                              style: GoogleFonts.lexend(
+                                fontSize: 13,
+                                color: Skin.color(Co.error),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.read<HomeProvider>().loadTasks(),
+                            child: Text(
+                              'Retry',
+                              style: GoogleFonts.lexend(
+                                fontWeight: FontWeight.w600,
+                                color: Skin.color(Co.error),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
             Expanded(
               child: Consumer<HomeProvider>(
                 builder: (context, homeProvider, _) {
