@@ -37,12 +37,37 @@ extension _TaskDetailsScreenFunctions on _TaskDetailsScreenState {
       return;
     }
     final uri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot place call')),
-      );
+    try {
+      if (kIsWeb) {
+        final launched = await launchUrl(uri);
+        if (!launched && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Opening phone app is not supported in this browser.'),
+            ),
+          );
+        }
+      } else {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cannot place call')),
+          );
+        }
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              kIsWeb
+                  ? 'Opening phone app is not supported in this browser.'
+                  : 'Cannot place call',
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -67,12 +92,27 @@ extension _TaskDetailsScreenFunctions on _TaskDetailsScreenState {
       return;
     }
     try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cannot open map')),
+      final launchOptions = LaunchMode.externalApplication;
+      final webTarget = kIsWeb ? '_blank' : null;
+      if (kIsWeb) {
+        final launched = await launchUrl(
+          uri,
+          mode: launchOptions,
+          webOnlyWindowName: webTarget,
         );
+        if (!launched && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cannot open map')),
+          );
+        }
+      } else {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: launchOptions);
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cannot open map')),
+          );
+        }
       }
     } catch (_) {
       if (context.mounted) {
