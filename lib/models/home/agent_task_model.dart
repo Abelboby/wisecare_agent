@@ -118,7 +118,8 @@ class AgentTaskModel {
     if (category != null && category.toUpperCase() == 'SOS') {
       return AgentTaskPriority.high;
     }
-    return priority.toUpperCase() == 'HIGH'
+    final p = priority.toUpperCase();
+    return (p == 'URGENT' || p == 'HIGH')
         ? AgentTaskPriority.high
         : AgentTaskPriority.medium;
   }
