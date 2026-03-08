@@ -34,4 +34,7 @@ class _LoginDemoCredentials {
 
   static const String email = 'night.agent@wisecare.com';
   static const String password = 'WiseCare@2024';
+
+  /// Delay per character for demo typewriter animation (milliseconds).
+  static const int typingDelayMs = 35;
 }
