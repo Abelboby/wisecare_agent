@@ -124,7 +124,11 @@ class _MapTabScreenState extends State<MapTabScreen> {
 
   void _tryApplyInitialCamera() {
     if (_pendingInitialCenter == null || !_mapControllerReady) return;
-    _mapController.move(_pendingInitialCenter!, _kDefaultZoom);
+    _mapController.move(
+      _pendingInitialCenter!,
+      _kDefaultZoom,
+      offset: Offset(0, -_MapTabDimens.mapCenterBottomOffsetPx),
+    );
   }
 
   void _showLocationFailedSnackbarIfNeeded() {
