@@ -10,13 +10,12 @@ class _LoginDimens {
   static const double cardPaddingH = 32;
   static const double cardPaddingTop = 32;
   static const double cardPaddingBottom = 48;
-  static const double headerIconSize = 48;
-  static const double headerIconInner = 30;
+  static const double headerIconSize = 72;
+  static const double headerIconInner = 64;
   static const double gapAfterHeader = 16;
   static const double gapAfterTitle = 8;
   static const double gapSection = 24;
   static const double gapLabelField = 8;
-  static const double gapAfterForgot = 4;
   static const double gapBeforeButton = 24;
   static const double inputRadius = 16;
   static const double inputPaddingH = 16;
@@ -27,4 +26,12 @@ class _LoginDimens {
   static const double footerTop = 32;
   static const double footerDividerSpace = 16;
   static const double footerDisclaimerTop = 15;
+}
+
+/// Demo credentials for quick login (dev/demo only). Remove in production.
+class _LoginDemoCredentials {
+  _LoginDemoCredentials._();
+
+  static const String email = 'night.agent@wisecare.com';
+  static const String password = 'WiseCare@2024';
 }
